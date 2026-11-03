@@ -72,8 +72,12 @@ self.addEventListener('fetch', e => {
   }));
 });
 
-// The page asks "is there something newer?" when it comes back from the background
+// The page asks "is there something newer?" when it opens and when it comes back from the background.
+// Replies {type: 'checked', status: 'updated' | 'same' | 'offline', modified: <when index.html was last committed>}
 self.addEventListener('message', e => {
   if (!e.data || e.data.type !== 'check') return;
-  e.waitUntil(refreshPage().then(x => { if (x.changed) e.source.postMessage({type: 'updated'}); }).catch(() => {}));
+  const reply = msg => (e.ports && e.ports[0] ? e.ports[0] : e.source).postMessage({type: 'checked', ...msg});
+  e.waitUntil(refreshPage()
+    .then(x => reply({status: x.changed ? 'updated' : 'same', modified: x.res.headers.get('last-modified')}))
+    .catch(() => reply({status: 'offline'})));
 });

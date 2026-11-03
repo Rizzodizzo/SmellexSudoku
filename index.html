@@ -448,6 +448,16 @@ body[data-fx=candy] .board{box-shadow:0 0 18px rgba(255,95,162,.35)}
 .tlabel{align-items:center}
 .toast{position:fixed;left:50%;bottom:28px;z-index:9;width:max-content;max-width:min(360px,calc(100% - 32px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:opacity .25s,transform .3s var(--ease)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.updpill{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:10;transform:translate(-50%,-16px);opacity:0;pointer-events:none;display:flex;align-items:center;gap:8px;width:max-content;max-width:calc(100% - 32px);padding:7px 14px 7px 11px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--thin);box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:.82rem;font-weight:600;transition:opacity .25s,transform .3s var(--ease)}
+.updpill.show{opacity:1;transform:translate(-50%,0)}
+.updicon{width:14px;height:14px;flex-shrink:0;border-radius:50%;border:2px solid var(--thin);border-top-color:var(--accent);animation:updspin .8s linear infinite}
+.updpill.ok .updicon{border:0;animation:none;background:var(--ok);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12'/%3E%3C/svg%3E")}
+.updpill.ok .updicon::after{content:'';display:block;width:5px;height:8px;margin:2px 0 0 4.5px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.updpill.off .updicon{border:0;animation:none;background:var(--muted)}
+.updpill.new .updicon{border-top-color:var(--ok)}
+@keyframes updspin{to{transform:rotate(360deg)}}
+html.rm .updicon{animation-duration:2.4s}
+.setrow #checkUpdBtn{flex-shrink:0;padding:7px 12px;font-size:.85rem;font-weight:600}
 .toast svg.ic{width:18px;height:18px;flex-shrink:0}
 .sheet{touch-action:pan-y}
 .sheet .grab{margin:-6px auto 4px}
@@ -741,6 +751,7 @@ html.nofx body[data-fx=gold] .cell.given .v,html.nofx body[data-fx=gold] h1,html
   </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
+<div class="updpill" id="updPill" role="status" aria-live="polite"><span class="updicon"></span><span id="updText"></span></div>
 
 <div class="overlay sheetwrap" id="settingsOverlay">
   <div class="sheet" role="dialog" aria-label="Settings">
@@ -759,6 +770,9 @@ html.nofx body[data-fx=gold] .cell.given .v,html.nofx body[data-fx=gold] h1,html
     <h3>Motion</h3>
     <label class="setrow"><span>Reduce motion<small class="setsub" id="rmNote">Instant menus, moves and win screens</small></span><input type="checkbox" class="switch" data-set="reduceMotion"></label>
     <label class="setrow"><span>Background animations<small class="setsub" id="bgNote">Falling petals, fish, sleeping cats and other theme effects</small></span><input type="checkbox" class="switch" data-set="bgMotion"></label>
+    <h3>Updates</h3>
+    <label class="setrow"><span>Show update checks<small class="setsub">A little note at the top whenever the game checks for a new version</small></span><input type="checkbox" class="switch" data-set="showUpdates"></label>
+    <div class="setrow"><span>Version<small class="setsub" id="verNote">Not checked yet</small></span><button class="ghost small" id="checkUpdBtn">Check now</button></div>
     <h3>Data</h3>
     <button class="danger" id="resetBtn">Reset scores &amp; best times</button>
   </div>
@@ -849,7 +863,7 @@ const recKey = () => `${modeId}:${diffId}`;
 
 /* ---------- settings ---------- */
 const SETTINGS_KEY = 'sudoku-settings-v1';
-const DEFAULT_SETTINGS = {theme: 'auto', sound: true, volume: 0.7, hlPeers: true, hlSame: true, showCounts: true, showTimer: true, reduceMotion: false};
+const DEFAULT_SETTINGS = {theme: 'auto', sound: true, volume: 0.7, hlPeers: true, hlSame: true, showCounts: true, showTimer: true, reduceMotion: false, showUpdates: true};
 let settings = {...DEFAULT_SETTINGS};
 try { settings = {...settings, ...JSON.parse(localStorage.getItem(SETTINGS_KEY))}; } catch {}
 // Reduce motion: once you flip the switch in the app (rmChosen), your choice wins.
@@ -3772,8 +3786,25 @@ scrollToMode(MODES.findIndex(m => m.id === modeId), false);
    sw.js always fetches the newest index.html when there's internet (the saved copy is only for offline).
    If the app was just sitting in the background when you committed, coming back to it checks for a
    newer version; if there is one, the game saves and reloads straight back to where you were. */
-const UPDATE_KEY = 'sudoku-just-updated';
+const UPDATE_KEY = 'sudoku-just-updated', VERSION_KEY = 'sudoku-version';
 var updatePending = false;   // var: other functions may look at it before this line runs
+let pillTimer = 0;
+function updatePill(text, kind, ms) {
+  const el = $('#updPill');
+  $('#updText').textContent = text;
+  el.className = 'updpill show ' + (kind || '');
+  clearTimeout(pillTimer);
+  if (ms) pillTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+const fmtVersion = v => {
+  const d = v && new Date(v);
+  return d && !isNaN(d) ? d.toLocaleString(undefined, {day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'}) : null;
+};
+function showVersion() {
+  let v = null; try { v = localStorage.getItem(VERSION_KEY); } catch {}
+  const when = fmtVersion(v);
+  $('#verNote').textContent = when ? `Last updated ${when}` : 'Not checked yet';
+}
 function applyUpdate() {
   if ($('#winOverlay').classList.contains('show')) { updatePending = true; return; }   // don't cut off a win
   saveGame();
@@ -3782,30 +3813,62 @@ function applyUpdate() {
   location.reload();
 }
 // Just reloaded for an update: put the player straight back in their game
-(() => {
+const justUpdated = (() => {
   let info = null;
   try { info = JSON.parse(sessionStorage.getItem(UPDATE_KEY)); sessionStorage.removeItem(UPDATE_KEY); } catch {}
-  if (!info) return;
+  if (!info) return false;
   if (info.mode && loadSaves()[info.mode]) resumeGame(info.mode);
-  setTimeout(() => toast('Updated to the newest version'), 400);
+  return true;
 })();
+showVersion();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   const sw = navigator.serviceWorker;
   const hadController = !!sw.controller;
-  let reloading = false;
-  const onUpdate = () => { if (!reloading) { reloading = true; applyUpdate(); if (updatePending) reloading = false; } };
+  let reloading = false, checking = false;
+  const onUpdate = () => {
+    if (reloading) return;
+    reloading = true;
+    updatePill('Update found · loading it now…', 'new');
+    setTimeout(() => { applyUpdate(); if (updatePending) { reloading = false; updatePill('Update ready · it loads after this screen', 'new', 3000); } }, 700);
+  };
   // a brand-new sw.js took over (e.g. the first time after you replace an old one)
   sw.addEventListener('controllerchange', () => { if (hadController) onUpdate(); });
-  // sw.js found a newer index.html than the one that's running
+  // sw.js found a newer index.html while the page was loading from the saved copy
   sw.addEventListener('message', e => { if (e.data && e.data.type === 'updated') onUpdate(); });
   window.addEventListener('load', () => sw.register('sw.js', {updateViaCache: 'none'}).catch(() => {}));
-  const checkForUpdate = () => sw.ready.then(reg => {
-    reg.update().catch(() => {});
-    if (sw.controller) sw.controller.postMessage({type: 'check'});
-  }).catch(() => {});
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
-  addEventListener('online', checkForUpdate);
-  setInterval(() => { if (!document.hidden) checkForUpdate(); }, 30 * 60 * 1000);   // left open for ages
+
+  // Ask sw.js whether GitHub has a newer index.html than the one running; quiet = only speak up if there is
+  function checkForUpdate(manual) {
+    if (checking || reloading) return;
+    const loud = manual || settings.showUpdates;
+    sw.ready.then(reg => {
+      reg.update().catch(() => {});
+      if (!sw.controller) { if (manual) updatePill('Not installed yet · open the app again', 'off', 2500); return; }
+      checking = true;
+      if (loud) updatePill('Checking for updates…', '');
+      const ch = new MessageChannel();
+      const giveUp = setTimeout(() => { checking = false; if (loud) updatePill(`Couldn't check for updates`, 'off', 2500); }, 10000);
+      ch.port1.onmessage = e => {
+        clearTimeout(giveUp); checking = false;
+        const r = e.data || {};
+        if (r.modified) { try { localStorage.setItem(VERSION_KEY, r.modified); } catch {} showVersion(); }
+        const when = fmtVersion(r.modified);
+        if (r.status === 'updated') onUpdate();
+        else if (!loud) return;
+        else if (r.status === 'same') updatePill(when ? `Up to date · ${when}` : 'Up to date', 'ok', 2200);
+        else updatePill('Offline · playing the saved version', 'off', 2500);
+      };
+      sw.controller.postMessage({type: 'check'}, [ch.port2]);
+    }).catch(() => {});
+  }
+  $('#checkUpdBtn').onclick = () => checkForUpdate(true);
+  if (justUpdated) setTimeout(() => updatePill('Updated to the newest version', 'ok', 2600), 300);
+  else if (hadController) setTimeout(() => checkForUpdate(false), 600);   // every time the app opens
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(false); });
+  addEventListener('online', () => checkForUpdate(false));
+  setInterval(() => { if (!document.hidden) checkForUpdate(false); }, 30 * 60 * 1000);   // left open for ages
+} else {
+  $('#checkUpdBtn').onclick = () => updatePill('Updates only work on the hosted site', 'off', 2500);
 }
 </script>
 </body>
