@@ -75,6 +75,18 @@ button.primary{background:var(--accent);color:var(--onaccent)}
 header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 header h1{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-size:clamp(1rem,4.6vw,1.4rem);margin:0;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header button{white-space:nowrap;flex-shrink:0}
+#diffLabel{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;min-width:0}
+#diffLabel span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+#diffLabel .dl-mode{font-size:.6em;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1px}
+.newsplit{display:flex;flex-shrink:0;gap:2px}
+@media (max-width:360px){.ngword{display:none}}
+.newsplit #newBtn{border-top-right-radius:3px;border-bottom-right-radius:3px}
+.diffpick{position:relative;display:flex;align-items:center;justify-content:center;width:34px;border-radius:3px 8px 8px 3px;cursor:pointer;background:var(--accent);color:var(--onaccent)}
+.diffpick svg.ic{width:16px;height:16px;transform:rotate(90deg)}
+.diffpick select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px;appearance:none;-webkit-appearance:none}
+.diffpick:active{transform:scale(.94)}
+.toast.act{pointer-events:auto}
+.toast .tbtn{margin-left:6px;padding:4px 10px;border-radius:8px;background:var(--bg);color:var(--ink);font-weight:700;font-size:.85rem}
 .stats{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem;margin-bottom:8px}
 .board{--br:10px;--bw:2px;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));aspect-ratio:1;border:2px solid var(--line);border-radius:var(--br);background:var(--panel);user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .cell{position:relative;min-width:0;min-height:0;background-color:var(--onaccent);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--thin);border-bottom:1px solid var(--thin);font-size:clamp(1.1rem,6vw,1.8rem);cursor:pointer;color:var(--entry)}
@@ -140,14 +152,17 @@ button:active{transform:scale(.94)}
 .board>.cell:nth-child(9){border-top-right-radius:calc(var(--br) - var(--bw))}
 .board>.cell:nth-child(73){border-bottom-left-radius:calc(var(--br) - var(--bw))}
 .board>.cell:nth-child(81){border-bottom-right-radius:calc(var(--br) - var(--bw))}
-.board>.cell:nth-child(1) .cage{border-top-left-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
-.board>.cell:nth-child(9) .cage{border-top-right-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
-.board>.cell:nth-child(73) .cage{border-bottom-left-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
-.board>.cell:nth-child(81) .cage{border-bottom-right-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
 .board>.cell:nth-child(1) .csum{top:3px;left:4px}
 /* ---------- killer cages ---------- */
 .cell .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.cage{position:absolute;border:1px dashed var(--muted);opacity:.75;pointer-events:none}
+.cell .v{z-index:1}
+/* the 3x3 box lines are drawn once over the whole board, so they cross the thin lines cleanly */
+.gridlines,.gridlines::before,.gridlines::after{position:absolute;pointer-events:none;box-sizing:border-box}
+.gridlines{inset:0;z-index:2}
+.gridlines::before{content:'';top:0;bottom:0;left:calc(100% / 3 - var(--gw,2px));width:calc(100% / 3 + var(--gw,2px));border-left:var(--gw,2px) solid var(--line);border-right:var(--gw,2px) solid var(--line)}
+.gridlines::after{content:'';left:0;right:0;top:calc(100% / 3 - var(--gw,2px));height:calc(100% / 3 + var(--gw,2px));border-top:var(--gw,2px) solid var(--line);border-bottom:var(--gw,2px) solid var(--line)}
+/* Killer cage outlines: one SVG over the board, each side's dashes fitted so every corner is solid */
+.cagesvg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;color:var(--muted);opacity:.8}
 .csum{position:absolute;top:1px;left:2px;z-index:1;font-size:clamp(.5rem,2.1vw,.7rem);font-weight:700;line-height:1;color:var(--ink);background:inherit;padding:0 1px 1px 0;pointer-events:none}
 #game.killer .notes{inset:5px 6px;font-size:clamp(.46rem,2vw,.7rem)}
 #game.killer .khead .notes{inset:calc(clamp(.5rem,2.1vw,.7rem) + 3px) 6px 5px 6px;font-size:clamp(.4rem,1.7vw,.6rem)}
@@ -392,7 +407,7 @@ body[data-fx=neon] .cell .v{text-shadow:0 0 6px currentColor,0 0 14px currentCol
 body[data-fx=neon] .cell.given{color:#ffe74c}
 body[data-fx=neon] #fx .p svg{filter:drop-shadow(0 0 4px currentColor)}
 body[data-fx=neon]::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
-body[data-fx=neon] button.primary{box-shadow:0 0 14px rgba(255,47,214,.55)}
+body[data-fx=neon] button.primary,body[data-fx=neon] label.primary{box-shadow:0 0 14px rgba(255,47,214,.55)}
 /* Royal Gold: metallic gold everywhere, studded frame, crown, shimmering numbers */
 body[data-fx=gold]{--gm:linear-gradient(135deg,#7a5a12 0%,#f9e58a 20%,#c9992a 38%,#fff4b8 52%,#b8860b 70%,#f2d36b 86%,#8a6414 100%);background:radial-gradient(ellipse 130% 60% at 50% -5%,#5a4210 0%,#241a06 45%,#0b0803 100%) fixed}
 body[data-fx=gold] .board{--bw:6px;border:6px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--gm) border-box;box-shadow:0 0 0 1px #000,inset 0 0 0 1px rgba(0,0,0,.6),0 0 36px rgba(212,175,55,.4),0 16px 40px rgba(0,0,0,.7)}
@@ -400,8 +415,8 @@ body[data-fx=gold] .board::before{content:'';position:absolute;inset:-12px;z-ind
 body[data-fx=gold] .cell.given .v,body[data-fx=gold] h1,body[data-fx=gold] .score{background:var(--gm);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 5s linear infinite}
 body[data-fx=gold] .cell .v{text-shadow:none}
 body[data-fx=gold] .cell:not(.given) .v{color:#fff1c9;text-shadow:0 0 8px rgba(242,207,91,.35)}
-body[data-fx=gold] #diffLabel::before,body[data-fx=gold] .home h1::before{content:'';display:inline-block;width:1.15em;height:.8em;margin-right:.3em;vertical-align:.02em;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 28'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff4b8'/%3E%3Cstop offset='.45' stop-color='%23d4af37'/%3E%3Cstop offset='.7' stop-color='%23f6e27a'/%3E%3Cstop offset='1' stop-color='%238a6414'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M3 9l8 7 9-13 9 13 8-7-3 15H6z' fill='url(%2523g)' stroke='%237a5a12' stroke-width='1.2' stroke-linejoin='round'/%3E%3Crect x='6' y='22' width='28' height='4' rx='1' fill='url(%2523g)' stroke='%237a5a12' stroke-width='1'/%3E%3Ccircle cx='20' cy='3' r='2.2' fill='%23ff5a6e'/%3E%3Ccircle cx='3' cy='9' r='1.8' fill='%237fd1ff'/%3E%3Ccircle cx='37' cy='9' r='1.8' fill='%237fd1ff'/%3E%3Ccircle cx='20' cy='17' r='2' fill='%239be08a'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 3px rgba(212,175,55,.6))}
-body[data-fx=gold] button.primary{background:var(--gm);background-size:220% 220%;color:#1a1205;font-weight:700;text-shadow:0 1px 0 rgba(255,255,255,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.25),0 3px 12px rgba(212,175,55,.35);animation:goldsheen 6s ease-in-out infinite}
+body[data-fx=gold] #diffLabel .dl-diff::before,body[data-fx=gold] .home h1::before{content:'';display:inline-block;width:1.15em;height:.8em;margin-right:.3em;vertical-align:.02em;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 28'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff4b8'/%3E%3Cstop offset='.45' stop-color='%23d4af37'/%3E%3Cstop offset='.7' stop-color='%23f6e27a'/%3E%3Cstop offset='1' stop-color='%238a6414'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M3 9l8 7 9-13 9 13 8-7-3 15H6z' fill='url(%2523g)' stroke='%237a5a12' stroke-width='1.2' stroke-linejoin='round'/%3E%3Crect x='6' y='22' width='28' height='4' rx='1' fill='url(%2523g)' stroke='%237a5a12' stroke-width='1'/%3E%3Ccircle cx='20' cy='3' r='2.2' fill='%23ff5a6e'/%3E%3Ccircle cx='3' cy='9' r='1.8' fill='%237fd1ff'/%3E%3Ccircle cx='37' cy='9' r='1.8' fill='%237fd1ff'/%3E%3Ccircle cx='20' cy='17' r='2' fill='%239be08a'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 3px rgba(212,175,55,.6))}
+body[data-fx=gold] button.primary,body[data-fx=gold] label.primary{background:var(--gm);background-size:220% 220%;color:#1a1205;font-weight:700;text-shadow:0 1px 0 rgba(255,255,255,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.25),0 3px 12px rgba(212,175,55,.35);animation:goldsheen 6s ease-in-out infinite}
 @keyframes goldsheen{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 body[data-fx=gold] .tools button,body[data-fx=gold] .pad button,body[data-fx=gold] .iconbtn,body[data-fx=gold] .hintbtns button:not(.primary),body[data-fx=gold] .howbtn{background:linear-gradient(180deg,#2b2109,#151006);box-shadow:inset 0 0 0 1px rgba(212,175,55,.5),inset 0 1px 0 rgba(255,236,170,.15);color:#f6e7b8}
 body[data-fx=gold] .pad button{color:#f2cf5b}
@@ -608,7 +623,7 @@ html.rm :not(#fx *,#bursts *,#scene *,.catlayer *,.bunnylayer *,.vineborder *),h
 html.nofx #fx,html.nofx #bursts{display:none}
 html.nofx #scene *,html.nofx .catlayer *,html.nofx .bunnylayer *,html.nofx .bunny,html.nofx .vineborder *{animation:none!important;transition:none!important}
 html.nofx .vinestem{stroke-dashoffset:0}html.nofx .pleaf{scale:1}html.nofx .cat .z{opacity:.6}
-html.nofx body[data-fx=gold] .cell.given .v,html.nofx body[data-fx=gold] h1,html.nofx body[data-fx=gold] .score,html.nofx body[data-fx=gold] button.primary{animation:none!important}
+html.nofx body[data-fx=gold] .cell.given .v,html.nofx body[data-fx=gold] h1,html.nofx body[data-fx=gold] .score,html.nofx body[data-fx=gold] button.primary,html.nofx body[data-fx=gold] label.primary{animation:none!important}
 
 </style>
 </head>
@@ -643,7 +658,10 @@ html.nofx body[data-fx=gold] .cell.given .v,html.nofx body[data-fx=gold] h1,html
       <button class="iconbtn" id="homeBtn" aria-label="Home"><i data-icon="back"></i></button>
       <h1 id="diffLabel">Medium</h1>
       <button class="iconbtn" id="gameSettings" aria-label="Settings"><i data-icon="settings"></i></button>
-      <button class="primary" id="newBtn">New game</button>
+      <div class="newsplit">
+        <button class="primary" id="newBtn">New<span class="ngword"> game</span></button>
+        <label class="primary diffpick" aria-label="Change difficulty"><i data-icon="chevron"></i><select id="diffSelect"></select></label>
+      </div>
     </header>
     <div class="stats">
       <span>Best: <b id="bestLabel">—</b></span>
@@ -2980,30 +2998,112 @@ for (let i = 0; i < 81; i++) {
   el.addEventListener('click', () => { if (selected !== i) Sound.select(); selected = i; render(); });
   boardEl.appendChild(el); cells.push(el); valEls.push(v);
 }
+addBoardLayers(boardEl);
 
-// Killer: dashed cage outlines with the total in each cage's first square
+// Grid overlays: the box lines, and an SVG for Killer cage outlines (redrawn whenever the board resizes)
+function addBoardLayers(board) {
+  const lines = document.createElement('div');
+  lines.className = 'gridlines';
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'cagesvg'); svg.setAttribute('aria-hidden', 'true');
+  board.append(svg, lines);
+  board._svg = svg;
+  if (window.ResizeObserver) new ResizeObserver(() => drawCageLines(board)).observe(board);
+}
+
+// Killer: the total in each cage's first square, plus the dashed outlines
 function drawCages(cellEls, KK) {
-  cellEls.forEach(el => { el.querySelectorAll('.cage,.csum').forEach(x => x.remove()); el.classList.remove('khead'); });
-  if (!KK) return;
-  cellEls.forEach((el, i) => {
-    const k = KK.cageOf[i], r = ROW(i), c = COL(i);
-    const edge = {top: r === 0 || KK.cageOf[i - 9] !== k, bottom: r === 8 || KK.cageOf[i + 9] !== k,
-                  left: c === 0 || KK.cageOf[i - 1] !== k, right: c === 8 || KK.cageOf[i + 1] !== k};
-    const line = document.createElement('div');
-    line.className = 'cage';
-    for (const side of ['top', 'right', 'bottom', 'left']) {
-      line.style[side] = edge[side] ? '3px' : '-1px';
-      line.style['border' + cap(side) + 'Style'] = edge[side] ? 'dashed' : 'none';
-    }
-    el.prepend(line);
-    if (KK.cages[k].head === i) {
-      const sum = document.createElement('span');
-      sum.className = 'csum';
-      sum.textContent = KK.cages[k].sum;
-      el.appendChild(sum);
-      el.classList.add('khead');
-    }
+  cellEls.forEach(el => { el.querySelectorAll('.csum').forEach(x => x.remove()); el.classList.remove('khead'); });
+  const board = cellEls[0].parentElement;
+  board._cages = KK; board._cells = cellEls;
+  if (KK) KK.cages.forEach(cg => {
+    const sum = document.createElement('span');
+    sum.className = 'csum';
+    sum.textContent = cg.sum;
+    cellEls[cg.head].appendChild(sum);
+    cellEls[cg.head].classList.add('khead');
   });
+  drawCageLines(board);
+}
+
+// Walk round a cage's edge clockwise, as sides of the grid: {dir, a, b (grid corners r*10+c), line, cell}
+function cageSides(cells) {
+  const S = new Set(cells), next = new Map(), key = (r, c) => r * 10 + c;
+  const add = (a, b, dir, cell) => next.set(a, {a, b, dir, cell});
+  for (const i of cells) {
+    const r = ROW(i), c = COL(i);
+    if (r === 0 || !S.has(i - 9)) add(key(r, c), key(r, c + 1), 'R', i);          // top edge, heading right
+    if (c === 8 || !S.has(i + 1)) add(key(r, c + 1), key(r + 1, c + 1), 'D', i);  // right edge, heading down
+    if (r === 8 || !S.has(i + 9)) add(key(r + 1, c + 1), key(r + 1, c), 'L', i);  // bottom edge, heading left
+    if (c === 0 || !S.has(i - 1)) add(key(r + 1, c), key(r, c), 'U', i);          // left edge, heading up
+  }
+  const edges = [], start = next.keys().next().value;
+  let k = start;
+  do { const e = next.get(k); if (!e) break; edges.push(e); k = e.b; } while (k !== start && edges.length < 200);
+  const sides = [];
+  for (const e of edges) {
+    const last = sides[sides.length - 1];
+    if (last && last.dir === e.dir) last.b = e.b; else sides.push({...e});
+  }
+  if (sides.length > 1 && sides[0].dir === sides[sides.length - 1].dir) sides[0].a = sides.pop().a;
+  return sides;
+}
+
+function drawCageLines(board) {
+  const svg = board._svg, KK = board._cages, cellEls = board._cells;
+  if (!svg) return;
+  if (!KK || !cellEls || !board.offsetWidth) { svg.innerHTML = ''; return; }
+  // Measure the inside of every row and column (cells aren't all the same: box lines are thicker)
+  const br = board.getBoundingClientRect(), scale = br.width / board.offsetWidth || 1;
+  const ox = br.left + board.clientLeft * scale, oy = br.top + board.clientTop * scale;
+  const colL = [], colR = [], rowT = [], rowB = [];
+  for (let k = 0; k < 9; k++) {
+    const ce = cellEls[k], re = cellEls[k * 9];
+    const cr = ce.getBoundingClientRect(), rr = re.getBoundingClientRect();
+    colL[k] = (cr.left - ox) / scale; colR[k] = (cr.right - ox) / scale - parseFloat(getComputedStyle(ce).borderRightWidth);
+    rowT[k] = (rr.top - oy) / scale;  rowB[k] = (rr.bottom - oy) / scale - parseFloat(getComputedStyle(re).borderBottomWidth);
+  }
+  const cs = getComputedStyle(board);
+  const radius = Math.max(2, (parseFloat(cs.getPropertyValue('--br')) || 10) - (parseFloat(cs.getPropertyValue('--bw')) || 2) - 3);
+  const dpr = window.devicePixelRatio || 1, W = 1, IN = 3, DASH = 4, GAP = 3;
+  const snap = v => (Math.round(v * dpr - W * dpr / 2) + W * dpr / 2) / dpr;   // keep 1px lines crisp
+  const CORNERS = new Set([0, 9, 90, 99]);
+  const f = n => +n.toFixed(2);
+  let out = '';
+  for (const cg of KK.cages) {
+    const sides = cageSides(cg.cells);
+    // each side's inset line: x for up/down sides, y for left/right sides
+    for (const sd of sides) {
+      const r = ROW(sd.cell), c = COL(sd.cell);
+      sd.v = snap(sd.dir === 'R' ? rowT[r] + IN : sd.dir === 'L' ? rowB[r] - IN : sd.dir === 'D' ? colR[c] - IN : colL[c] + IN);
+    }
+    const n = sides.length;
+    const corner = (s1, s2) => (s1.dir === 'R' || s1.dir === 'L') ? [s2.v, s1.v] : [s1.v, s2.v];
+    for (let i = 0; i < n; i++) {
+      const sd = sides[i], prev = sides[(i - 1 + n) % n], nxt = sides[(i + 1) % n];
+      let [x0, y0] = corner(prev, sd), [x1, y1] = corner(sd, nxt);
+      const ux = sd.dir === 'R' ? 1 : sd.dir === 'L' ? -1 : 0, uy = sd.dir === 'D' ? 1 : sd.dir === 'U' ? -1 : 0;
+      const roundStart = CORNERS.has(sd.a), roundEnd = CORNERS.has(sd.b);
+      const e0 = roundStart ? -radius : W / 2, e1 = roundEnd ? -radius : W / 2;   // reach into the corner (or stop for the curve)
+      x0 -= ux * e0; y0 -= uy * e0; x1 += ux * e1; y1 += uy * e1;
+      const L = Math.abs(x1 - x0) + Math.abs(y1 - y0);
+      // fit the dashes so the side starts and ends on a dash, which keeps every corner joined up
+      let dash = '';
+      if (L > DASH * 2 + 2) {
+        let k = Math.max(2, Math.round((L + GAP) / (DASH + GAP)));
+        let gap = (L - k * DASH) / (k - 1);
+        while (gap < 2 && k > 2) { k--; gap = (L - k * DASH) / (k - 1); }
+        dash = ` stroke-dasharray="${DASH} ${f(gap)}"`;
+      }
+      out += `<path d="M${f(x0)} ${f(y0)}L${f(x1)} ${f(y1)}"${dash}/>`;
+      if (roundEnd) {   // rounded to match the board's corner
+        const [cx, cy] = corner(sd, nxt);
+        const vx = nxt.dir === 'R' ? 1 : nxt.dir === 'L' ? -1 : 0, vy = nxt.dir === 'D' ? 1 : nxt.dir === 'U' ? -1 : 0;
+        out += `<path d="M${f(x1)} ${f(y1)}A${f(radius)} ${f(radius)} 0 0 1 ${f(cx + vx * radius)} ${f(cy + vy * radius)}"/>`;
+      }
+    }
+  }
+  svg.innerHTML = `<g fill="none" stroke="currentColor" stroke-width="${W}" stroke-linecap="butt">${out}</g>`;
 }
 for (let d = 1; d <= 9; d++) {
   const b = document.createElement('button');
@@ -3068,8 +3168,10 @@ function pushHistory() {
 }
 function clearNoteFromPeers(i, d) { for (const p of PEERS[i]) notes[p] &= ~(1 << d); }
 
+// Outside Paper mode, a correct number is locked in: it can't be erased, changed or undone
+const locked = i => !paper() && !given[i] && grid[i] && grid[i] === solution[i];
 function input(d) {
-  if (done || selected < 0 || given[selected]) return;
+  if (done || selected < 0 || given[selected] || locked(selected)) return;
   const i = selected;
   if (notesMode) {
     if (grid[i]) return;
@@ -3107,7 +3209,7 @@ function input(d) {
   render(); checkWin();
 }
 function erase() {
-  if (done || selected < 0 || given[selected] || (!grid[selected] && !notes[selected])) return;
+  if (done || selected < 0 || given[selected] || locked(selected) || (!grid[selected] && !notes[selected])) return;
   pushHistory();
   if (grid[selected]) clearHint();
   grid[selected] = 0; notes[selected] = 0;
@@ -3116,11 +3218,18 @@ function erase() {
 }
 function undo() {
   if (done) return;
-  const h = history.pop();
-  if (!h) return;
-  clearHint();
-  grid = h.grid; notes = h.notes;
-  render();
+  const keep = [...Array(81).keys()].filter(locked).map(i => [i, grid[i]]);
+  const same = (a, b) => a.every((v, k) => v === b[k]);
+  // step back, but leave correct numbers where they are; skip steps that only placed one of them
+  while (history.length) {
+    const h = history.pop();
+    const g = h.grid.slice(), n = h.notes.slice();
+    for (const [i, d] of keep) { g[i] = d; n[i] = 0; for (const q of PEERS[i]) n[q] &= ~(1 << d); }
+    if (same(g, grid) && same(n, notes)) continue;
+    clearHint();
+    grid = g; notes = n;
+    return render();
+  }
 }
 function move(dr, dc) {
   if (selected < 0) { selected = 40; return render(); }
@@ -3261,11 +3370,13 @@ function startPuzzle(p, st = null) {
   clearHint(); clearInterval(timerId); clearTimeout(winTimer);
   $('#winOverlay').classList.remove('show');
   document.querySelectorAll('.catlayer').forEach(l => l.classList.remove('awake'));   // cats doze off again
-  $('#diffLabel').textContent = (modeId === 'classic' ? '' : MODES.find(m => m.id === modeId).name + ' · ') + DIFF[diffId].name;
+  // mode on a small line above the difficulty, so the header has room for the difficulty picker
+  $('#diffLabel').innerHTML = (modeId === 'classic' ? '' : `<span class="dl-mode">${MODES.find(m => m.id === modeId).name}</span>`) + `<span class="dl-diff">${DIFF[diffId].name}</span>`;
   $('#game').classList.toggle('paper', paper());
   $('#game').classList.toggle('killer', !!K);
   updateBestLabel();
   currentPuzzle = p;
+  syncDiffSelect();
   showScreen('game');
   startTimer(st ? st.seconds : 0); render();
   saveGame();
@@ -3284,6 +3395,7 @@ for (let i = 0; i < 81; i++) {
   v.className = 'v'; el.appendChild(v);
   $('#miniBoard').appendChild(el); miniCells.push(el); miniVals.push(v);
 }
+addBoardLayers($('#miniBoard'));
 for (let d = 1; d <= 9; d++) { const s = document.createElement('span'); s.textContent = d; $('#miniPad').appendChild(s); }
 
 function buildSlides() {
@@ -3444,11 +3556,27 @@ $('#howHome').onclick = closeHowTo;
 $('#howPrev').onclick = () => slideIdx > 0 && showSlide(slideIdx - 1);
 $('#howNext').onclick = () => slideIdx < SLIDES.length - 1 ? showSlide(slideIdx + 1) : closeHowTo();
 
-$('#newBtn').onclick = () => {
-  const progress = !done && grid && grid.some((v, i) => v && !given[i]);
-  if (progress && !confirm('Start a new puzzle? Your current one will be lost.')) return;
+// New game starts straight away; if you'd made progress, a toast lets you take it back for a few seconds
+function freshGame(newDiff) {
+  const progress = !done && currentPuzzle && grid && grid.some((v, i) => v && !given[i]);
+  const prev = progress ? {p: currentPuzzle, st: {grid: grid.slice(), notes: notes.slice(), mistakes, hints, hintsLeft, seconds}, diff: prefs.diff[modeId]} : null;
+  if (newDiff) { prefs.diff[modeId] = newDiff; savePrefs(); diffId = newDiff; }
   clearSave(modeId); newGame();
-};
+  if (prev) setTimeout(() => {
+    toast(`New ${DIFF[diffId].name.toLowerCase()} puzzle <button class="tbtn" id="undoNew">Undo</button>`, 5000);
+    $('#undoNew').onclick = () => {
+      $('#toast').classList.remove('show', 'act');
+      if (prev.diff) { prefs.diff[prev.p.mode] = prev.diff; savePrefs(); }
+      startPuzzle(prev.p, prev.st);
+    };
+  }, 80);
+}
+$('#newBtn').onclick = () => freshGame();
+$('#diffSelect').onchange = e => { freshGame(e.target.value); e.target.blur(); };
+// keep the picker showing this game's difficulty
+function syncDiffSelect() {
+  $('#diffSelect').innerHTML = DIFFS.map(d => `<option value="${d.id}"${d.id === diffId ? ' selected' : ''}>${d.name}</option>`).join('');
+}
 $('#againBtn').onclick = newGame;
 $('#homeBtn').onclick = showHome;
 $('#winHomeBtn').onclick = showHome;
@@ -3654,12 +3782,13 @@ document.querySelectorAll('.seg').forEach(b => b.onclick = () => setThemeTab(+b.
   area.addEventListener('touchcancel', end);
 })();
 let toastTimer = null;
-function toast(html) {
+function toast(html, ms = 2400) {
   const t = $('#toast');
   t.innerHTML = html;
   t.classList.add('show');
+  t.classList.toggle('act', /<button/.test(html));   // tappable only when it has a button
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  toastTimer = setTimeout(() => t.classList.remove('show', 'act'), ms);
 }
 function openThemes() {
   renderThemes();
