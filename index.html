@@ -73,10 +73,10 @@ button.primary{background:var(--accent);color:var(--onaccent)}
 
 /* ---------- game ---------- */
 header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-header h1{font-size:clamp(1rem,4.6vw,1.4rem);margin:0;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header h1{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-size:clamp(1rem,4.6vw,1.4rem);margin:0;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header button{white-space:nowrap;flex-shrink:0}
 .stats{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem;margin-bottom:8px}
-.board{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));aspect-ratio:1;border:2px solid var(--line);background:var(--panel);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.board{--br:10px;--bw:2px;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));aspect-ratio:1;border:2px solid var(--line);border-radius:var(--br);background:var(--panel);user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .cell{position:relative;min-width:0;min-height:0;background-color:var(--onaccent);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--thin);border-bottom:1px solid var(--thin);font-size:clamp(1.1rem,6vw,1.8rem);cursor:pointer;color:var(--entry)}
 .cell:nth-child(9n){border-right:none}
 .cell:nth-child(n+73){border-bottom:none}
@@ -88,7 +88,8 @@ header button{white-space:nowrap;flex-shrink:0}
 .cell.sel{background:var(--sel)}
 .cell.bad{color:var(--bad);background:var(--badbg)}
 .cell.sel.bad{background:var(--sel)}
-.notes{position:absolute;inset:2px;display:grid;grid-template-columns:repeat(3,1fr);font-size:clamp(.5rem,2.2vw,.75rem);color:var(--muted);text-align:center;align-items:center;font-weight:400}
+.notes{position:absolute;inset:2px;display:grid;grid-template-columns:repeat(3,1fr);font-size:clamp(.5rem,2.2vw,.75rem);color:var(--muted);text-align:center;align-items:center;font-weight:400;grid-template-rows:repeat(3,1fr);line-height:1;overflow:hidden}
+.notes span{display:flex;align-items:center;justify-content:center;min-height:0}
 .tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
 .tools button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;font-size:.85rem}
 .tools button .ic{width:22px;height:22px}
@@ -134,11 +135,22 @@ button:active{transform:scale(.94)}
 .overlay.show .card{animation:cardin .35s var(--ease) both}
 @keyframes cardin{from{opacity:0;transform:scale(.85) translateY(10px)}to{opacity:1;transform:none}}
 
+/* corner squares follow the board's rounded frame, whatever its thickness */
+.board>.cell:nth-child(1){border-top-left-radius:calc(var(--br) - var(--bw))}
+.board>.cell:nth-child(9){border-top-right-radius:calc(var(--br) - var(--bw))}
+.board>.cell:nth-child(73){border-bottom-left-radius:calc(var(--br) - var(--bw))}
+.board>.cell:nth-child(81){border-bottom-right-radius:calc(var(--br) - var(--bw))}
+.board>.cell:nth-child(1) .cage{border-top-left-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
+.board>.cell:nth-child(9) .cage{border-top-right-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
+.board>.cell:nth-child(73) .cage{border-bottom-left-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
+.board>.cell:nth-child(81) .cage{border-bottom-right-radius:max(2px,calc(var(--br) - var(--bw) - 3px))}
+.board>.cell:nth-child(1) .csum{top:3px;left:4px}
 /* ---------- killer cages ---------- */
 .cell .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .cage{position:absolute;border:1px dashed var(--muted);opacity:.75;pointer-events:none}
 .csum{position:absolute;top:1px;left:2px;z-index:1;font-size:clamp(.5rem,2.1vw,.7rem);font-weight:700;line-height:1;color:var(--ink);background:inherit;padding:0 1px 1px 0;pointer-events:none}
-#game.killer .notes{inset:11px 3px 2px 3px}
+#game.killer .notes{inset:5px 6px;font-size:clamp(.46rem,2vw,.7rem)}
+#game.killer .khead .notes{inset:calc(clamp(.5rem,2.1vw,.7rem) + 3px) 6px 5px 6px;font-size:clamp(.4rem,1.7vw,.6rem)}
 .mini .csum{font-size:clamp(.42rem,1.7vw,.55rem)}
 
 /* ---------- icons ---------- */
@@ -198,17 +210,17 @@ svg.ic .fill{fill:currentColor;stroke:none}
 @keyframes fxburst{0%{opacity:1;transform:translate(0,0) scale(.4) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 30px)) scale(1) rotate(var(--rot))}}
 .board{position:relative}
 /* Sakura: soft rounded board with a pink glow */
-body[data-fx=sakura] .board{border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(224,90,140,.25)}
+body[data-fx=sakura] .board{box-shadow:0 10px 30px rgba(224,90,140,.25)}
 body[data-fx=sakura] .mode,body[data-fx=sakura] .card{box-shadow:0 8px 24px rgba(224,90,140,.18)}
 /* Under the Sea: watery glow */
-body[data-fx=sea] .board{border-radius:12px;overflow:hidden;box-shadow:0 0 0 3px rgba(79,209,232,.35),0 0 30px rgba(79,209,232,.25)}
+body[data-fx=sea] .board{box-shadow:0 0 0 3px rgba(79,209,232,.35),0 0 30px rgba(79,209,232,.25)}
 /* Autumn: warm wooden frame */
-body[data-fx=autumn] .board{border:5px solid #8a4b22;border-radius:10px;overflow:hidden;box-shadow:0 10px 26px rgba(138,75,34,.3)}
+body[data-fx=autumn] .board{--bw:5px;border:5px solid #8a4b22;box-shadow:0 10px 26px rgba(138,75,34,.3)}
 /* Starry Night: night-sky glow and golden numbers */
-body[data-fx=space] .board{border-radius:12px;overflow:hidden;box-shadow:0 0 34px rgba(143,162,255,.3)}
+body[data-fx=space] .board{box-shadow:0 0 34px rgba(143,162,255,.3)}
 body[data-fx=space] .cell .v{text-shadow:0 0 8px rgba(255,216,107,.35)}
 /* Snowfall: frosty edge and a snowdrift on top of the board */
-body[data-fx=snow] .board{border-radius:6px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+body[data-fx=snow] .board{box-shadow:0 12px 30px rgba(0,0,0,.35)}
 body[data-fx=snow] .board::before{content:'';position:absolute;left:-10px;right:-10px;top:-16px;height:32px;z-index:2;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 32' preserveAspectRatio='none'%3E%3Cpath d='M3 22C1 15 6 10 14 10C20 3 36 2 46 9C55 5 66 5 75 9C87 1 109 0 121 8C131 4 144 5 152 9C164 1 184 0 195 8C203 4 215 4 223 8C235 0 257 1 267 9C275 5 287 5 295 9C307 1 325 1 335 8C344 4 356 5 364 9C374 6 386 6 392 11C398 14 399 19 397 23C396 27 393 29 390 28.5C387 28 386 25 385.5 22C381 19 372 17 362 17L38 17C28 17 19 19 14.5 22C14 25 13 28 10 28.5C7 29 4 27 3 22Z' fill='%23ffffff'/%3E%3Cpath d='M14.5 22C19 19 28 17 38 17L362 17C372 17 381 19 385.5 22C380 19.8 371 18.4 362 18.4L38 18.4C29 18.4 20 19.8 14.5 22Z' fill='%23cfe1f3'/%3E%3Cpath d='M5 23.5C6 26.5 8 28 10.5 28M395 23.5C394 26.5 392 28 389.5 28' stroke='%23d6e6f5' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M27 9c5-3 11-3 15 0M101 5c6-3 12-3 17 1M176 5c6-3 12-3 16 1M246 5c6-3 12-3 17 1M316 5c5-3 11-3 15 1' stroke='%23eaf3ff' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;filter:drop-shadow(0 1px 1px rgba(10,30,60,.28))}
 body[data-fx=snow] .board::after{content:'';position:absolute;left:8px;right:8px;top:calc(100% - 1px);height:18px;z-index:2;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 20'%3E%3Cpath d='M0 0h120v2.5H0z' fill='%23eef6ff'/%3E%3Cpath d='M4 2q3.5 6 3.5 14Q8.5 8 11 2zM18 2q2 3 2 7 0-4 2-7zM29 2q3 8 3 17 0-9 3-17zM44 2q2 4 2 8 0-4 2-8zM55 2q3 6 3 12 0-6 3-12zM69 2q2.5 7 2.5 15Q72 9 74 2zM84 2q2 3 2 7 0-4 2-7zM95 2q3 7 3 14 0-7 3-14zM109 2q2.5 4 2.5 10 0-6 2.5-10z' fill='%23eaf4ff' stroke='%23a9c8e6' stroke-width='.5' stroke-linejoin='round'/%3E%3Cpath d='M30.6 4l.9 9M56.6 4l.7 6M96.6 4l.7 7M70.6 4l.7 8M5.6 4l.7 6' stroke='%23ffffff' stroke-width='.9'/%3E%3C/svg%3E") 0 0/120px 20px repeat-x;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 body[data-fx=snow] .cell:nth-child(-n+9) .csum{top:3px}
@@ -227,9 +239,8 @@ body[data-fx=cats] .boardwrap{margin-bottom:24px}
 .pleaf{transform-box:fill-box;transform-origin:50% 0;scale:0;animation:leafin .45s cubic-bezier(.3,1.6,.5,1) calc(.25s + var(--k) * 45ms) forwards,leafflutter var(--d) ease-in-out var(--delay) infinite}
 @keyframes leafin{to{scale:1}}
 @keyframes leafflutter{0%,100%{rotate:-6deg}50%{rotate:6deg}}
-@media (prefers-reduced-motion:reduce){.vinestem{stroke-dashoffset:0;animation:none}.pleaf{scale:1;animation:none}}
 
-body[data-fx=cats] .board{border-radius:10px;box-shadow:0 10px 30px rgba(74,46,26,.28)}
+body[data-fx=cats] .board{box-shadow:0 10px 30px rgba(74,46,26,.28)}
 body[data-fx=cats] .mode,body[data-fx=cats] .card,body[data-fx=cats] .hintbox{box-shadow:0 8px 24px rgba(74,46,26,.18)}
 .catlayer{position:absolute;left:0;right:0;top:0;height:0;z-index:3;pointer-events:none}
 .cat{position:absolute;top:-62px;width:120px;height:112px}
@@ -276,18 +287,17 @@ body[data-fx=cats] .mode,body[data-fx=cats] .card,body[data-fx=cats] .hintbox{bo
 @keyframes catflick{25%{transform:rotate(-5deg)}60%{transform:rotate(-1deg)}}
 .cat.petted .headg,.catlayer.awake .headg{animation:catperk .5s var(--ease) both}
 @keyframes catperk{to{transform:translateY(-2.5px) rotate(-3deg)}}
-@media (prefers-reduced-motion:reduce){.cat *{animation:none!important}.cat .z{opacity:.6}}
 /* Seasonal theme decorations */
-body[data-fx=xmas] .board{border-radius:8px;box-shadow:0 10px 28px rgba(198,47,54,.16)}
-body[data-fx=xmas] .board::after{content:'';position:absolute;left:-14px;top:-30px;width:46px;height:38px;z-index:3;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cpath d='M10 40C14 22 24 8 40 6c8-1 14 3 16 9-6-3-12-2-15 2-5 6-7 14-8 23z' fill='%23d62f3a' stroke='%239e1f26' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M22 18c6-6 12-8 18-8' stroke='%23ef5a63' stroke-width='3' fill='none' stroke-linecap='round' opacity='.6'/%3E%3Crect x='4' y='36' width='38' height='11' rx='5.5' fill='%23fffdf7' stroke='%23d9d0c0' stroke-width='1.2'/%3E%3Ccircle cx='55' cy='17' r='5' fill='%23fffdf7' stroke='%23d9d0c0' stroke-width='1.2'/%3E%3C/svg%3E") center/contain no-repeat;transform:rotate(-16deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
-body[data-fx=xmas] .boardwrap{margin-top:30px;margin-bottom:20px}
+body[data-fx=xmas] .board{box-shadow:0 10px 28px rgba(198,47,54,.16)}
+body[data-fx=xmas] .board::after{content:'';position:absolute;left:-27px;top:-37px;width:40px;height:33px;z-index:3;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cpath d='M10 40C14 22 24 8 40 6c8-1 14 3 16 9-6-3-12-2-15 2-5 6-7 14-8 23z' fill='%23d62f3a' stroke='%239e1f26' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M22 18c6-6 12-8 18-8' stroke='%23ef5a63' stroke-width='3' fill='none' stroke-linecap='round' opacity='.6'/%3E%3Crect x='4' y='36' width='38' height='11' rx='5.5' fill='%23fffdf7' stroke='%23d9d0c0' stroke-width='1.2'/%3E%3Ccircle cx='55' cy='17' r='5' fill='%23fffdf7' stroke='%23d9d0c0' stroke-width='1.2'/%3E%3C/svg%3E") center/contain no-repeat;transform:rotate(-24deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
+body[data-fx=xmas] .boardwrap{margin-top:38px;margin-bottom:20px}
 body[data-fx=matariki]{background:radial-gradient(ellipse 140% 80% at 70% 0%,#1b2a66 0%,#0a1230 55%,#060a1e 100%) fixed}
-body[data-fx=matariki] .board{border-radius:10px;box-shadow:0 0 30px rgba(159,179,255,.22)}
+body[data-fx=matariki] .board{box-shadow:0 0 30px rgba(159,179,255,.22)}
 body[data-fx=spooky]{background:radial-gradient(ellipse 120% 70% at 50% 0%,#2e1f44 0%,#1b1426 55%,#0f0b17 100%) fixed}
-body[data-fx=spooky] .board{border-radius:8px;box-shadow:0 0 26px rgba(255,138,42,.18)}
+body[data-fx=spooky] .board{box-shadow:0 0 26px rgba(255,138,42,.18)}
 body[data-fx=spooky]::before{content:'';position:fixed;right:0;bottom:0;width:min(34vw,170px);aspect-ratio:1;z-index:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 70'%3E%3Cg stroke='%23e6dcf5' stroke-width='.9' fill='none' opacity='.55'%3E%3Cpath d='M70 0L20 0M70 0L70 50M70 0L30 22M70 0L48 40M70 0L58 46M70 0L38 8'/%3E%3Cpath d='M56 0Q58 6 70 13M42 0Q46 11 70 27M28 0Q34 16 70 41M70 13Q62 10 61 3'/%3E%3Cpath d='M61 3Q62 8 66 11M50 3Q55 11 66 18M38 3Q47 16 64 26'/%3E%3C/g%3E%3Cpath d='M52 30v12' stroke='%23e6dcf5' stroke-width='.8' opacity='.7'/%3E%3Ccircle cx='52' cy='44' r='3' fill='%230d0a12'/%3E%3Ccircle cx='52' cy='41' r='2' fill='%230d0a12'/%3E%3Cpath d='M49 42l-2-1.5M49 44h-2.5M49 46l-2 1.5M55 42l2-1.5M55 44h2.5M55 46l2 1.5' stroke='%230d0a12' stroke-width='.8'/%3E%3C/svg%3E") center/contain no-repeat;transform:scaleY(-1);opacity:.85}
 body[data-fx=easter]{background:linear-gradient(180deg,#f3f0fb 0%,#fdf2f6 100%) fixed}
-body[data-fx=easter] .board{border-radius:12px;box-shadow:0 10px 26px rgba(138,106,214,.18)}
+body[data-fx=easter] .board{box-shadow:0 10px 26px rgba(138,106,214,.18)}
 body[data-fx=easter] .boardwrap{margin-top:70px}
 /* --- Spooky: black cat with a bigger tail swoosh --- */
 body[data-fx=spooky] .boardwrap{margin-top:42px}
@@ -364,7 +374,7 @@ body[data-fx=matariki] #fx .p-twinkle{animation-name:mglisten;animation-timing-f
 /* --- ANZAC: dawn sky, poppies on the board, poppy field --- */
 body[data-fx=anzac]{background:linear-gradient(180deg,#c3cad8 0%,#d8d3db 34%,#ecd8ca 68%,#f1c7a4 100%) fixed}
 body[data-fx=anzac] .boardwrap{margin-top:40px}
-body[data-fx=anzac] .board{border-radius:8px;box-shadow:0 10px 28px rgba(90,40,30,.16)}
+body[data-fx=anzac] .board{box-shadow:0 10px 28px rgba(90,40,30,.16)}
 body[data-fx=anzac] .vineborder svg{filter:drop-shadow(0 1px 1px rgba(60,20,10,.25))}
 .poppy{transform-box:view-box;animation:poppysway var(--d) ease-in-out var(--delay) infinite}
 @keyframes poppysway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
@@ -373,9 +383,9 @@ body[data-fx=anzac] .vineborder svg{filter:drop-shadow(0 1px 1px rgba(60,20,10,.
 .field::after{content:'';position:absolute;left:0;right:0;bottom:0;top:calc(min(20vh,140px) - 1px);background:#76845f}
 .fpop{transform-box:view-box;animation:poppysway var(--d) ease-in-out var(--delay) infinite}
 .lwf{position:absolute;left:0;right:0;bottom:calc(min(20vh,140px) + 6px + var(--ext));text-align:center;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:15px;letter-spacing:.08em;color:rgba(60,45,38,.55)}
-html.rm #scene *,html.rm .bunny,html.rm .bunny *,html.rm .poppy,html.rm .bulb{animation:none!important}
+
 /* Candy: candy-cane striped border */
-body[data-fx=candy] .board{border:6px solid transparent;border-radius:14px;background:linear-gradient(var(--panel),var(--panel)) padding-box,repeating-linear-gradient(45deg,#ff5fa2 0 9px,#fff 9px 18px) border-box;overflow:hidden}
+body[data-fx=candy] .board{--bw:6px;border:6px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,repeating-linear-gradient(45deg,#ff5fa2 0 9px,#fff 9px 18px) border-box;}
 /* Neon Arcade: glowing grid and numbers, CRT scanlines */
 body[data-fx=neon] .board{box-shadow:0 0 0 1px var(--accent),0 0 18px rgba(255,47,214,.55),inset 0 0 18px rgba(47,243,255,.12)}
 body[data-fx=neon] .cell .v{text-shadow:0 0 6px currentColor,0 0 14px currentColor}
@@ -385,7 +395,7 @@ body[data-fx=neon]::after{content:'';position:fixed;inset:0;pointer-events:none;
 body[data-fx=neon] button.primary{box-shadow:0 0 14px rgba(255,47,214,.55)}
 /* Royal Gold: metallic gold everywhere, studded frame, crown, shimmering numbers */
 body[data-fx=gold]{--gm:linear-gradient(135deg,#7a5a12 0%,#f9e58a 20%,#c9992a 38%,#fff4b8 52%,#b8860b 70%,#f2d36b 86%,#8a6414 100%);background:radial-gradient(ellipse 130% 60% at 50% -5%,#5a4210 0%,#241a06 45%,#0b0803 100%) fixed}
-body[data-fx=gold] .board{border:6px solid transparent;border-radius:10px;background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--gm) border-box;box-shadow:0 0 0 1px #000,inset 0 0 0 1px rgba(0,0,0,.6),0 0 36px rgba(212,175,55,.4),0 16px 40px rgba(0,0,0,.7)}
+body[data-fx=gold] .board{--bw:6px;border:6px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--gm) border-box;box-shadow:0 0 0 1px #000,inset 0 0 0 1px rgba(0,0,0,.6),0 0 36px rgba(212,175,55,.4),0 16px 40px rgba(0,0,0,.7)}
 body[data-fx=gold] .board::before{content:'';position:absolute;inset:-12px;z-index:2;pointer-events:none;background:radial-gradient(circle,#fffbe0 0 1.5px,#f2cf5b 2.5px,#9a7418 5px,transparent 6px) 0 0/14px 14px no-repeat,radial-gradient(circle,#fffbe0 0 1.5px,#f2cf5b 2.5px,#9a7418 5px,transparent 6px) 100% 0/14px 14px no-repeat,radial-gradient(circle,#fffbe0 0 1.5px,#f2cf5b 2.5px,#9a7418 5px,transparent 6px) 0 100%/14px 14px no-repeat,radial-gradient(circle,#fffbe0 0 1.5px,#f2cf5b 2.5px,#9a7418 5px,transparent 6px) 100% 100%/14px 14px no-repeat}
 body[data-fx=gold] .cell.given .v,body[data-fx=gold] h1,body[data-fx=gold] .score{background:var(--gm);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 5s linear infinite}
 body[data-fx=gold] .cell .v{text-shadow:none}
@@ -408,7 +418,6 @@ body[data-fx=cats] #fx .p svg{filter:none}
 body[data-fx=snow] .board::before{filter:drop-shadow(0 1px 1px rgba(10,30,60,.28)) drop-shadow(0 0 6px var(--glow))}
 body[data-fx=snow] .board::after{filter:drop-shadow(0 0 4px var(--glow))}
 body[data-fx=candy] .board{box-shadow:0 0 18px rgba(255,95,162,.35)}
-@media (prefers-reduced-motion:reduce){#fx,#bursts{display:none}}
 
 /* ---------- themes tab ---------- */
 .homebtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -540,9 +549,18 @@ button.danger{width:100%;background:var(--badbg);color:var(--bad);font-weight:60
 @keyframes targetpulse{50%{box-shadow:inset 0 0 0 1px var(--accent)}}
 .hintbox{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border-left:4px solid var(--gold);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.92rem;line-height:1.35}
 .hint-ic{font-size:1.1rem}
-.hinttext{flex:1}
-.hintbtns{display:flex;gap:6px;flex-shrink:0}
-.hintbtns button{padding:6px 10px;font-size:.85rem}
+.hintbox{flex-wrap:wrap}
+.hinttext{flex:1;min-width:0}
+#hintClose{flex-shrink:0;padding:6px 9px}
+.hintbtns{display:flex;gap:6px;flex-basis:100%;justify-content:flex-end}
+.hinttext b{font-weight:800}
+.hinttext .nowrap{white-space:nowrap}
+.hc{display:inline-block;text-shadow:none;padding:0 5px;margin:0 1px;border-radius:5px;font-weight:700;line-height:1.35;color:var(--ink)}
+.hc-gold{background:var(--hkey);border:1.5px solid #c99400;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+.hc-red{background:var(--helim);border:1.5px solid #d93838;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+#hintBack{margin-right:auto}
+.hintbtns:not(:has(button:not(.hidden))){display:none}
+.hintbtns button{padding:7px 12px;font-size:.85rem}
 #hintBtn.empty{opacity:.45}
 
 /* ---------- how to play ---------- */
@@ -573,13 +591,14 @@ button.danger{width:100%;background:var(--badbg);color:var(--bad);font-weight:60
 .dots i{width:8px;height:8px;border-radius:50%;background:var(--thin);transition:background-color .2s,transform .2s}
 .dots i.on{background:var(--accent);transform:scale(1.3)}
 
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* Reduce motion setting (same rules as the system setting) */
-html.rm .vinestem{stroke-dashoffset:0;animation:none}html.rm .pleaf{scale:1;animation:none}
-html.rm .cat *{animation:none!important}html.rm .cat .z{opacity:.6}
-html.rm #fx,html.rm #bursts{display:none}
-html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition:none!important}
-html.rm #fx,html.rm #bursts{display:none}
+/* Reduce motion: the interface stops moving (theme decorations are left to the other switch) */
+html.rm :not(#fx *,#bursts *,#scene *,.catlayer *,.bunnylayer *,.vineborder *),html.rm :not(#fx *,#bursts *,#scene *,.catlayer *,.bunnylayer *,.vineborder *)::before,html.rm :not(#fx *,#bursts *,#scene *,.catlayer *,.bunnylayer *,.vineborder *)::after{animation:none!important;transition:none!important}
+/* Background animations off: theme decorations hold still */
+html.nofx #fx,html.nofx #bursts{display:none}
+html.nofx #scene *,html.nofx .catlayer *,html.nofx .bunnylayer *,html.nofx .bunny,html.nofx .vineborder *{animation:none!important;transition:none!important}
+html.nofx .vinestem{stroke-dashoffset:0}html.nofx .pleaf{scale:1}html.nofx .cat .z{opacity:.6}
+html.nofx body[data-fx=gold] .cell.given .v,html.nofx body[data-fx=gold] h1,html.nofx body[data-fx=gold] .score,html.nofx body[data-fx=gold] button.primary{animation:none!important}
 
 </style>
 </head>
@@ -626,9 +645,11 @@ html.rm #fx,html.rm #bursts{display:none}
     <div class="hintbox hidden" id="hintBox" role="status">
       <span class="hint-ic"><i data-icon="hint"></i></span>
       <div class="hinttext" id="hintText"></div>
+      <button id="hintClose" aria-label="Close hint"><i data-icon="close"></i></button>
       <div class="hintbtns">
+        <button class="hidden" id="hintBack">Back</button>
+        <button class="hidden" id="hintSkip">Skip to answer</button>
         <button class="primary" id="hintNext">Show me</button>
-        <button id="hintClose" aria-label="Close hint"><i data-icon="close"></i></button>
       </div>
     </div>
     <div class="tools">
@@ -696,7 +717,7 @@ html.rm #fx,html.rm #bursts{display:none}
       <h1 id="themesTitle">Themes</h1>
       <span class="hdrspacer"></span>
     </header>
-    <div class="devnote hidden" id="devNote"><i data-icon="bolt"></i><span>Testing mode: every theme is unlocked. Tap the title 7 times to turn it off.</span></div>
+    <div class="devnote hidden" id="devNote"><i data-icon="bolt"></i><span>Testing mode: every theme is unlocked and hints are unlimited. Tap the title 7 times to turn it off.</span></div>
     <div class="segtabs" role="tablist">
       <i class="segpill" id="segPill"></i>
       <button class="seg on" role="tab" data-tab="0">Standard</button>
@@ -736,7 +757,8 @@ html.rm #fx,html.rm #bursts{display:none}
     <label class="setrow"><span>Show numbers left on the pad</span><input type="checkbox" class="switch" data-set="showCounts"></label>
     <label class="setrow"><span>Show timer</span><input type="checkbox" class="switch" data-set="showTimer"></label>
     <h3>Motion</h3>
-    <label class="setrow"><span>Reduce motion<small class="setsub">No animations, and quicker win screens and menus</small></span><input type="checkbox" class="switch" data-set="reduceMotion"></label>
+    <label class="setrow"><span>Reduce motion<small class="setsub" id="rmNote">Instant menus, moves and win screens</small></span><input type="checkbox" class="switch" data-set="reduceMotion"></label>
+    <label class="setrow"><span>Background animations<small class="setsub" id="bgNote">Falling petals, fish, sleeping cats and other theme effects</small></span><input type="checkbox" class="switch" data-set="bgMotion"></label>
     <h3>Data</h3>
     <button class="danger" id="resetBtn">Reset scores &amp; best times</button>
   </div>
@@ -830,7 +852,14 @@ const SETTINGS_KEY = 'sudoku-settings-v1';
 const DEFAULT_SETTINGS = {theme: 'auto', sound: true, volume: 0.7, hlPeers: true, hlSame: true, showCounts: true, showTimer: true, reduceMotion: false};
 let settings = {...DEFAULT_SETTINGS};
 try { settings = {...settings, ...JSON.parse(localStorage.getItem(SETTINGS_KEY))}; } catch {}
-if (settings.reduceMotion) document.documentElement.classList.add('rm');
+// Reduce motion: once you flip the switch in the app (rmChosen), your choice wins.
+// Until then it follows the phone's own setting (Reduce Motion on iPhone, Remove animations on Android).
+const systemReduce = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+const sysReduce = () => !!(systemReduce && systemReduce.matches);
+const motionOff = () => settings.rmChosen ? !!settings.reduceMotion : sysReduce();          // interface
+const fxOn = () => settings.bgMotion !== false;                                          // theme decorations: on unless you turn them off
+if (motionOff()) document.documentElement.classList.add('rm');
+if (!fxOn()) document.documentElement.classList.add('nofx');
 const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {} };
 
 /* ---------- themes ---------- */
@@ -936,7 +965,10 @@ const isUnlocked = id => {
   return !t.req || meetsReq(t.req);
 };
 // Testing shortcut: opening the game with #unlockall in the address unlocks every theme
-if (/unlockall/i.test(location.hash + location.search)) { settings.devUnlock = true; saveSettings(); }
+if (/unlockall/i.test(location.hash + location.search)) { settings.devUnlock = true; settings.devHints = true; saveSettings(); }
+// Testing shortcut: #unlimitedhints in the address (or testing mode) gives unlimited hints
+if (/unlimitedhints/i.test(location.hash + location.search)) { settings.devHints = true; saveSettings(); }
+const unlimitedHints = () => !!settings.devHints;
 function reqText(req) {
   const mode = req.mode ? MODES.find(m => m.id === req.mode).name : 'any mode';
   return `Win ${mode} on ${DIFF[req.diff].name}${req.diff === 'master' ? '' : ' or harder'}`;
@@ -969,7 +1001,7 @@ function particleSVG(shape, c) {
 }
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = arr => arr[Math.random() * arr.length | 0];
-const reduceMotion = () => !!settings.reduceMotion || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const reduceMotion = motionOff;
 const ms = t => reduceMotion() ? 0 : t;   // waits that only exist for animations disappear with reduce motion
 
 let fxTimers = [];
@@ -995,7 +1027,7 @@ function buildFx(id) {
   layer.innerHTML = '';
   fxTimers.forEach(clearTimeout); fxTimers = [];
   document.body.dataset.fx = SPECIALS[id] ? id : '';
-  if (!SPECIALS[id] || reduceMotion()) return;
+  if (!SPECIALS[id] || !fxOn()) return;
   for (const f of SPECIALS[id].fx) {
     if (f.anim !== 'swim' && f.anim !== 'shoot') continue;
     if (f.anim === 'swim') for (let n = 0; n < f.count; n++) spawnRoaming(layer, f, true);   // some already mid-swim
@@ -1193,12 +1225,12 @@ const pohuSVG = (x, y, s) => `<g transform="translate(${x.toFixed(1)} ${y.toFixe
 function buildGarland() {
   const board = document.getElementById('board'), W = board.offsetWidth, H = board.offsetHeight, m = 18;
   if (!W) return;
-  const pts = boardLoop(W, H, m, 8, 3.2);
+  const pts = boardLoop(W, H, m, 10, 3.2);
   let boughs = '', extras = '', lights = '';
   pts.forEach(([x, y, nx, ny], k) => {
     const tx = -ny, ty = nx, base = Math.atan2(ty, tx) * 180 / Math.PI;
     for (const side of [-1, 1]) {
-      const off = 2.4 + ((k * 7 + (side > 0 ? 3 : 0)) % 5) * .5;
+      const off = 4.6 + ((k * 7 + (side > 0 ? 3 : 0)) % 5) * .45;
       const cx = x + nx * off, cy = y + ny * off;
       boughs += `<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="6.4" ry="2.3" transform="rotate(${(base + side * (34 + (k * 11) % 16)).toFixed(0)} ${cx.toFixed(1)} ${cy.toFixed(1)})" fill="${(k + (side > 0)) % 3 ? '#2f7a43' : '#3f9254'}"/>`;
     }
@@ -1206,10 +1238,10 @@ function buildGarland() {
   const every = Math.max(10, Math.round(pts.length / 26));
   for (let k = 0, n = 0; k < pts.length; k += every, n++) {
     const [x, y, nx, ny] = pts[k];
-    extras += pohuSVG(x + nx * 4.5, y + ny * 4.5, .78 + (n % 3) * .08);
+    extras += pohuSVG(x + nx * 6.5, y + ny * 6.5, .72 + (n % 3) * .07);
     const [x2, y2, nx2, ny2] = pts[(k + Math.floor(every / 2)) % pts.length];
     const col = ['#ffd36b', '#ff6b6b', '#5ad1e8', '#ffd36b', '#9be07a'][n % 5];
-    lights += `<g class="bulb" style="animation-delay:${(-(n * 0.37) % 2.4).toFixed(2)}s"><circle cx="${(x2 + nx2 * 6).toFixed(1)}" cy="${(y2 + ny2 * 6).toFixed(1)}" r="4.2" fill="${col}" opacity=".35"/><circle cx="${(x2 + nx2 * 6).toFixed(1)}" cy="${(y2 + ny2 * 6).toFixed(1)}" r="2" fill="${col}"/></g>`;
+    lights += `<g class="bulb" style="animation-delay:${(-(n * 0.37) % 2.4).toFixed(2)}s"><circle cx="${(x2 + nx2 * 7.5).toFixed(1)}" cy="${(y2 + ny2 * 7.5).toFixed(1)}" r="4.2" fill="${col}" opacity=".35"/><circle cx="${(x2 + nx2 * 7.5).toFixed(1)}" cy="${(y2 + ny2 * 7.5).toFixed(1)}" r="2" fill="${col}"/></g>`;
   }
   mountBorder(W, H, m, `<g class="garland">${boughs}</g>${extras}${lights}`);
 }
@@ -1497,7 +1529,7 @@ function doze(el) {
 // A little shower of the theme's particles from a square (or a big one from the board on a win)
 function burst(el, count = 7, spread = 46, shape = null) {
   const t = SPECIALS[settings.theme];
-  if (!t || !el || reduceMotion()) return;
+  if (!t || !el || !fxOn()) return;
   const r = el.getBoundingClientRect(), layer = document.getElementById('bursts');
   for (let n = 0; n < count; n++) {
     const p = document.createElement('span'), ang = rnd(0, Math.PI * 2), dist = rnd(spread * 0.5, spread);
@@ -1685,7 +1717,8 @@ for (let b = 0; b < 9; b++) {                                                   
 const BOXNAMES = ['top-left', 'top-middle', 'top-right', 'middle-left', 'centre', 'middle-right', 'bottom-left', 'bottom-middle', 'bottom-right'];
 const uName = u => u < 9 ? `row ${u + 1}` : u < 18 ? `column ${u - 8}` : `the ${BOXNAMES[u - 18]} box`;
 const cap = s => s[0].toUpperCase() + s.slice(1);
-const an = d => (d === 8 ? 'an ' : 'a ') + d;
+const an = d => (d === 8 || d === 11 || d === 18 || (d >= 80 && d <= 89) ? 'an ' : 'a ') + d;
+const orList = ns => ns.length === 1 ? String(ns[0]) : ns.slice(0, -1).join(', ') + ' or ' + ns[ns.length - 1];
 const bitsOf = m => { const o = []; for (let d = 1; d <= 9; d++) if (m & (1 << d)) o.push(d); return o; };
 const ALL = 0x3FE;
 
@@ -1776,6 +1809,53 @@ function cageOptions(g, cand, cg) {
   return {open, per, ways, used, placed, pruned: ways.length < raw.length};
 }
 
+// Which digits each square of a group could hold, if the group must add up to S
+// (squares that share a row, column or box must differ; the others may repeat)
+function groupOptions(cells, S, cand) {
+  const n = cells.length, per = Array(n).fill(0), tmp = [];
+  const peer = (a, b) => ROW(a) === ROW(b) || COL(a) === COL(b) || BOX(a) === BOX(b);
+  const go = (k, sum) => {
+    if (k === n) { if (sum !== S) return false; for (let j = 0; j < n; j++) per[j] |= 1 << tmp[j]; return true; }
+    const rem = n - k - 1;
+    let any = false;
+    for (const d of bitsOf(cand[cells[k]])) {
+      if (sum + d + rem > S) break;
+      if (sum + d + 9 * rem < S) continue;
+      let ok = true;
+      for (let j = 0; j < k; j++) if (tmp[j] === d && peer(cells[j], cells[k])) { ok = false; break; }
+      if (!ok) continue;
+      tmp[k] = d;
+      if (go(k + 1, sum + d)) any = true;
+    }
+    return any;
+  };
+  go(0, 0);
+  return per;
+}
+// Killer 45 rule with 2–4 leftover squares: they must add up to a known total, so they act like a hidden cage
+function findGroup45(g, cand, KK) {
+  const sumOf = cells => cells.reduce((t, i) => t + g[i], 0);
+  for (const R of REGIONS) {
+    const inR = new Set(R.cells);
+    const touching = [...new Set(R.cells.map(i => KK.cageOf[i]))].map(k => KK.cages[k]);
+    const inside = touching.filter(c => c.cells.every(i => inR.has(i)));
+    const covered = new Set(inside.flatMap(c => c.cells));
+    const rest = R.cells.filter(i => !covered.has(i)), open = rest.filter(i => !g[i]);
+    const tries = [];
+    if (open.length >= 2 && open.length <= 4)
+      tries.push({type: 'innies', cells: open, sum: R.total - inside.reduce((t, c) => t + c.sum, 0) - sumOf(rest), cages: inside});
+    const outside = touching.flatMap(c => c.cells.filter(i => !inR.has(i))), openOut = outside.filter(i => !g[i]);
+    if (openOut.length >= 2 && openOut.length <= 4)
+      tries.push({type: 'outies', cells: openOut, sum: touching.reduce((t, c) => t + c.sum, 0) - R.total - sumOf(outside), cages: touching});
+    for (const t of tries) {
+      const per = groupOptions(t.cells, t.sum, cand);
+      const elim = t.cells.map((i, j) => [i, cand[i] & ~per[j]]).filter(([, m]) => m);
+      if (elim.length) return {...t, region: R, per, key: t.cages.flatMap(c => c.cells).filter(i => !t.cells.includes(i)), elim};
+    }
+  }
+  return null;
+}
+
 // A deduction that rules candidates out (needed when no square can be filled directly).
 function findElim(g, cand, KK = K) {
   const empties = u => UNITS[u].filter(i => !g[i]);
@@ -1807,11 +1887,13 @@ function findElim(g, cand, KK = K) {
           const uSet = new Set(UNITS[u]);
           if (!pos.every(i => uSet.has(i))) continue;
           const elim = UNITS[u].filter(i => !g[i] && !inCage.has(i) && cand[i] & (1 << d));
-          if (elim.length) return {type: 'mustContain', cage: cg, d, unit: u, ways: o.ways, sum: cg.sum - o.placed,
+          if (elim.length) return {type: 'mustContain', cage: cg, d, unit: u, ways: o.ways, sum: cg.sum - o.placed, nOpen: o.open.length, used: o.used, raw: o.pruned,
                                    key: pos, elim: elim.map(i => [i, 1 << d])};
         }
       }
     }
+    const grp = findGroup45(g, cand, KK);
+    if (grp) return grp;
   }
 
   // Pointing: inside a box, a digit is confined to one row/column
@@ -1891,7 +1973,7 @@ function explainSingle(g, s) {
       {msg: `The total is ${cg.sum}, so the square is ${an(d)}.`, area: cg.cells, target: cell}];
     return [
       {msg: `The gold cage adds up to ${cg.sum}, and only one of its squares is still empty.`, key: cg.cells, target: cell},
-      {msg: `${cg.sum} − ${s.placed} (the numbers already in it) = ${d}, so the outlined square is ${an(d)}.`, key: cg.cells, target: cell}];
+      {msg: `${cg.sum} − ${s.placed} (the numbers already in the gold cage) = ${d}, so the outlined square is ${an(d)}.`, key: cg.cells, target: cell}];
   }
   if (type === 'innie' || type === 'outie') {
     const gold = s.cages.flatMap(c => c.cells), R = s.region;
@@ -1899,10 +1981,10 @@ function explainSingle(g, s) {
       : `45 rule: every row and column adds up to 45, so ${R.name} together add up to ${R.total}.`;
     return type === 'innie' ? [
       {msg: `${rule} The gold cages fit completely inside ${R.name}, leaving one empty square.`, area: R.cells, key: gold},
-      {msg: `Those cages add up to ${s.S}${s.F ? `, and the other numbers already there add ${s.F}` : ''}. So the outlined square is ${R.total} − ${s.S + s.F} = ${d}.`,
+      {msg: `Those gold cages add up to ${s.S}${s.F ? `, and the other numbers already there add ${s.F}` : ''}. So the outlined square is ${R.total} − ${s.S + s.F} = ${d}.`,
        area: R.cells, key: gold, target: cell}] : [
       {msg: `${rule} The gold cages cover all of ${R.name}, with one empty square poking out.`, area: R.cells, key: gold},
-      {msg: `Those cages add up to ${s.S}. Take away ${R.total} for ${R.name}${s.F ? ` and ${s.F} for the numbers already poking out` : ''}, and the outlined square is ${d}.`,
+      {msg: `Those gold cages add up to ${s.S}. Take away ${R.total} for ${R.name}${s.F ? ` and ${s.F} for the numbers already poking out` : ''}, and the outlined square is ${d}.`,
        area: R.cells, key: gold, target: cell}];
   }
   if (type === 'full') return [
@@ -1921,22 +2003,62 @@ function explainElim(e) {
   const red = e.elim.map(x => x[0]);
   const step = (msg, area) => ({msg, area, key: e.key, elim: red});
   switch (e.type) {
+    case 'innieOutie': {
+      const R = e.region, p = e.partial, ins = e.plus, outs = e.minus, rel = e.k === 0 && ins.length === 1 && outs.length === 1
+        ? `the square inside and the one poking out must be the same number` : e.k >= 0
+        ? `the inside ${ins.length > 1 ? 'squares' : 'square'} minus the outside ${outs.length > 1 ? 'ones' : 'one'} must equal ${e.k}`
+        : `the outside ${outs.length > 1 ? 'squares' : 'square'} minus the inside ${ins.length > 1 ? 'ones' : 'one'} must equal ${-e.k}`;
+      const optsOf = cells => orList(bitsOf(cells.reduce((m, i) => m | e.per[e.cells.indexOf(i)], 0)));
+      return {msg: `45 rule, innie and outie: ${R.name} add${R.total === 45 ? 's' : ''} up to ${R.total}. The gold cages and the ${p.sum} cage cover it, except ${ins.length > 1 ? `${ins.length} red squares` : 'one red square'} inside, and ${outs.length > 1 ? `${outs.length} squares` : 'one square'} of the ${p.sum} cage poke${outs.length > 1 ? '' : 's'} out. So ${rel}. That means inside can only be ${optsOf(ins)}, and outside only ${optsOf(outs)}.`,
+              area: R.cells, key: e.key, elim: e.cells};
+    }
+    case 'innies': case 'outies': {
+      const R = e.region, n = e.cells.length, opts = [...new Set(e.per.flatMap(bitsOf))].sort((a, b) => a - b);
+      const rule = R.total === 45 ? `every row, column and box adds up to 45` : `${R.name} add up to ${R.total}`;
+      const how = e.type === 'innies'
+        ? `The gold cages fit inside ${R.name}, so the ${n} red squares left over must add up to ${e.sum}.`
+        : `The gold cages cover all of ${R.name}, and the ${n} red squares poking out must add up to ${e.sum}.`;
+      return {msg: `45 rule, several squares: ${rule}. ${how} Only ${orList(opts).replace(' or ', ' and ')} can make that here, so the red squares can only be ${orList(opts)}.`,
+              area: R.cells, key: e.key, elim: e.cells};
+    }
     case 'combo': {
+      // Colours: if every empty square of the cage is narrowed down, the whole cage is gold;
+      // otherwise the narrowed squares are red and the rest of the cage is gold.
       const words = e.ways.map(w => bitsOf(w).join('+'));
-      const sumText = e.placed
-        ? `the gold squares are the rest of a ${e.cage.sum} cage that already has ${bitsOf(e.used).join(' and ')} in it, so they must make ${e.cage.sum - e.placed}.`
-        : `the gold cage has ${e.open.length} squares adding up to ${e.cage.sum}.`;
+      const red = e.elim.map(([i]) => i), whole = e.open.every(i => red.includes(i));
+      const can = bitsOf(red.reduce((m, i) => m | e.per[e.open.indexOf(i)], 0));
+      const canTxt = can.length === 1 ? an(can[0]) : can.slice(0, -1).join(', ') + ' or ' + can[can.length - 1];
       const fit = e.pruned ? ', given the numbers around it,' : '';
-      const ways = words.length === 1 ? `The only way to make that${fit} is ${words[0]}.`
-        : words.length <= 3 ? `The only ways to make that${fit} are ${words.join(' or ')}.`
-        : `Only these numbers can make that${fit}: ${bitsOf(e.mask).join(', ')}.`;
-      return {msg: `Cage combo: ${sumText} ${ways} That narrows down what each gold square can be.`, area: e.cage.cells, key: e.key, elim: []};
+      const ways = words.length === 1 ? `The only way to make that${fit} is ${words[0]}`
+        : words.length <= 3 ? `The only ways to make that${fit} are ${words.join(' or ')}` : null;
+      const used = (b => b.length > 1 ? b.slice(0, -1).join(', ') + ' and ' + b[b.length - 1] : b[0])(bitsOf(e.used));
+      const subject = whole ? 'gold' : 'highlighted';
+      const sumText = e.placed
+        ? `the ${subject} squares are the rest of ${an(e.cage.sum)} cage that already has ${used} in it, so they must make ${e.cage.sum - e.placed}.`
+        : `the ${subject} cage has ${e.open.length} squares adding up to ${e.cage.sum}.`;
+      const where = whole ? (e.placed ? 'they' : (e.open.length === 1 ? 'its square' : 'its squares')) : (red.length === 1 ? 'the red square' : 'the red squares');
+      return {msg: `Cage combo: ${sumText} ${ways ? ways + ', so' : 'Checking every combination that fits with the numbers around it,'} ${where} can only be ${canTxt}.`,
+              area: e.cage.cells, key: whole ? e.open : e.open.filter(i => !red.includes(i)), elim: whole ? [] : red};
     }
     case 'mustContain': {
+      // "Required digit": say where the cage total comes from, why only these combinations work, then use the digit
       const words = e.ways.map(w => bitsOf(w).join('+'));
-      const why = words.length <= 3 ? `every way to make ${e.sum} here (${words.join(', ')}) uses ${an(e.d)}` : `every way to make ${e.sum} here uses ${an(e.d)}`;
-      return step(`Cage must contain: ${why}, and it can only go in the gold squares, which are all in ${uName(e.unit)}. ` +
-        `So no other square in ${uName(e.unit)} can be ${an(e.d)}. Rule it out of the red squares.`, [...e.cage.cells, ...UNITS[e.unit]]);
+      const ds = e.ds || [e.d], many = ds.length > 1;
+      const nums = many ? ds.slice(0, -1).map(an).join(', ') + ' and ' + an(ds[ds.length - 1]) : an(ds[0]);
+      const or = many ? ds.slice(0, -1).join(', ') + ' or ' + ds[ds.length - 1] : an(ds[0]);
+      const usedDs = e.used ? bitsOf(e.used) : [], n = e.nOpen || e.key.length;
+      const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : String(a[0]);
+      const setup = usedDs.length
+        ? `the highlighted ${e.cage.sum} cage already has ${andList(usedDs)} in it, so its ${n} empty squares must make ${e.cage.sum} − ${usedDs.reduce((t, x) => t + x, 0)} = ${e.sum}`
+        : `the highlighted ${e.cage.sum} cage has ${n} squares adding up to ${e.sum}`;
+      const rule = usedDs.length ? ` (all different, and none of them ${andList(usedDs).replace(/ and /, ' or ')})` : ' (all different)';
+      const combos = words.length === 1
+        ? `The only way to make ${e.sum} from ${n} numbers${rule}${e.raw ? ' that fit with the numbers around it' : ''} is ${words[0]}`
+        : words.length <= 4 ? `Every way to make ${e.sum} from ${n} numbers${rule}${e.raw ? ' that fit here' : ''} (${words.join(', ')}) uses ${nums}`
+        : `Every way to make ${e.sum} from ${n} numbers${rule} uses ${nums}`;
+      return step(`Required digit: ${setup}. ${combos}, so the cage must contain ${nums}. ` +
+        `Inside the cage, ${many ? 'they' : 'it'} can only go in the gold squares, which are all in ${uName(e.unit)}, so no other square in ${uName(e.unit)} can be ${or}. Rule ${many ? 'them' : 'it'} out of the red squares.`,
+        [...e.cage.cells, ...UNITS[e.unit]]);
     }
     case 'pointing': return step(
       `Pointing pair: in ${uName(e.box)}, the ${e.d} can only go in the gold squares, which all sit in ${uName(e.line)}. ` +
@@ -1948,7 +2070,7 @@ function explainElim(e) {
       [...UNITS[e.box], ...UNITS[e.line]]);
     case 'nakedPair': return step(
       `Naked pair: the two gold squares in ${uName(e.unit)} can only be ${e.ds[0]} or ${e.ds[1]}, so between them they'll use up both. ` +
-      `No other square in ${uName(e.unit)} can be ${e.ds[0]} or ${e.ds[1]}.`, UNITS[e.unit]);
+      `No other square in ${uName(e.unit)} can be ${e.ds[0]} or ${e.ds[1]}, so rule them out of the red squares.`, UNITS[e.unit]);
     case 'hiddenPair': return step(
       `Hidden pair: in ${uName(e.unit)}, the ${e.ds[0]} and ${e.ds[1]} can only go in the two gold squares. ` +
       `So those two squares can't be any other number.`, UNITS[e.unit]);
@@ -1959,32 +2081,534 @@ function explainElim(e) {
   }
 }
 
+
+/* ---------- easiest-next-square hints ----------
+   Look at every square that can be cracked, and pick the one needing the fewest, simplest steps.
+   Each round collects ALL deductions available from the current pencil-marks (so steps never depend on
+   arbitrary search order), then traces back exactly which ones a square really needs. */
+const DIFF_W = {full: 1, cageLast: 1, hidden: 1, naked: 1.5, innie: 2, outie: 2, cageHidden: 2,
+  combo: 2, mustContain: 3, pointing: 3, claiming: 3, innies: 4, outies: 4, innieOutie: 4, nakedPair: 4, hiddenPair: 5, xwing: 7};
+const peerOf = (a, b) => ROW(a) === ROW(b) || COL(a) === COL(b) || BOX(a) === BOX(b);
+// Digits each square can take if sum(plus) − sum(minus) = k (squares sharing a row, column or box must differ)
+function signedOptions(plus, minus, k, cand) {
+  const cells = [...plus, ...minus], sign = [...plus.map(() => 1), ...minus.map(() => -1)], n = cells.length, per = Array(n).fill(0), tmp = [];
+  const go = (j, acc) => {
+    if (j === n) { if (acc !== k) return false; for (let q = 0; q < n; q++) per[q] |= 1 << tmp[q]; return true; }
+    let any = false;
+    for (const d of bitsOf(cand[cells[j]])) {
+      let ok = true;
+      for (let q = 0; q < j; q++) if (tmp[q] === d && peerOf(cells[q], cells[j])) { ok = false; break; }
+      if (!ok) continue;
+      tmp[j] = d;
+      if (go(j + 1, acc + sign[j] * d)) any = true;
+    }
+    return any;
+  };
+  go(0, 0);
+  return per;
+}
+// Every square that can be filled right now, each with its easiest reason
+function allSingles(g, cand, KK) {
+  const out = new Map();
+  const add = s => { if (!(s.digit >= 1 && s.digit <= 9)) return; const o = out.get(s.cell); if (!o || DIFF_W[s.type] < DIFF_W[o.type]) out.set(s.cell, s); };
+  for (let u = 0; u < 27; u++) { const e = UNITS[u].filter(i => !g[i]); if (e.length === 1) add({type: 'full', unit: u, cell: e[0], digit: 45 - UNITS[u].reduce((t, i) => t + g[i], 0)}); }
+  if (KK) for (const cg of KK.cages) {
+    const e = cg.cells.filter(i => !g[i]);
+    if (e.length === 1) { const placed = cg.cells.reduce((t, i) => t + g[i], 0); add({type: 'cageLast', cage: cg, cell: e[0], digit: cg.sum - placed, placed}); }
+  }
+  for (let u = 0; u < 27; u++) for (let d = 1; d <= 9; d++) {
+    if (UNITS[u].some(i => g[i] === d)) continue;
+    const pos = UNITS[u].filter(i => !g[i] && cand[i] & (1 << d));
+    if (pos.length === 1) add({type: 'hidden', unit: u, cell: pos[0], digit: d});
+  }
+  for (let i = 0; i < 81; i++) if (!g[i] && bitsOf(cand[i]).length === 1) add({type: 'naked', cell: i, digit: bitsOf(cand[i])[0]});
+  if (KK) {
+    for (const cg of KK.cages) {
+      const o = cageOptions(g, cand, cg);
+      if (o.open.length < 2 || !o.ways.length) continue;
+      const must = o.ways.reduce((a, b) => a & b, ALL);
+      for (const d of bitsOf(must)) {
+        const pos = o.open.filter((_, j) => o.per[j] & (1 << d));
+        if (pos.length === 1) add({type: 'cageHidden', cage: cg, cell: pos[0], digit: d, ways: o.ways, sum: cg.sum - o.placed});
+      }
+    }
+    const r = findRule45(g, KK);
+    if (r) add(r);
+  }
+  return [...out.values()];
+}
+// Every elimination available from these pencil-marks
+function allDeductions(g, cand, KK) {
+  const out = [], posOf = (u, d) => UNITS[u].filter(i => !g[i] && cand[i] & (1 << d)), empties = u => UNITS[u].filter(i => !g[i]);
+  const add = e => { e.removed = e.elim.map(([i, m]) => [i, m & cand[i]]).filter(([, m]) => m); if (e.removed.length) out.push(e); };
+  if (KK) {
+    for (const cg of KK.cages) {
+      if (!cg.cells.some(i => !g[i])) continue;
+      const o = cageOptions(g, cand, cg);
+      if (!o.ways.length) continue;
+      const elim = o.open.map((i, j) => [i, cand[i] & ~o.per[j]]).filter(([, m]) => m);
+      if (elim.length) add({type: 'combo', cage: cg, ...o, mask: o.per.reduce((a, b) => a | b, 0), key: o.open, elim});
+      const must = o.ways.reduce((a, b) => a & b, ALL), inCage = new Set(cg.cells);
+      for (const d of bitsOf(must)) {
+        const pos = o.open.filter((_, j) => o.per[j] & (1 << d));
+        if (pos.length < 2) continue;
+        for (let u = 0; u < 27; u++) {
+          if (!pos.every(i => UNITS[u].includes(i))) continue;
+          const el = UNITS[u].filter(i => !g[i] && !inCage.has(i) && cand[i] & (1 << d));
+          if (el.length) add({type: 'mustContain', cage: cg, d, unit: u, ways: o.ways, sum: cg.sum - o.placed, nOpen: o.open.length, used: o.used, raw: o.pruned, key: pos, elim: el.map(i => [i, 1 << d])});
+        }
+      }
+    }
+    const sumOf = cells => cells.reduce((t, i) => t + g[i], 0);
+    for (const R of REGIONS) {
+      const inR = new Set(R.cells);
+      const touching = [...new Set(R.cells.map(i => KK.cageOf[i]))].map(k => KK.cages[k]);
+      const inside = touching.filter(c => c.cells.every(i => inR.has(i))), partial = touching.filter(c => !inside.includes(c));
+      const covered = new Set(inside.flatMap(c => c.cells)), rest = R.cells.filter(i => !covered.has(i)), restOpen = rest.filter(i => !g[i]);
+      const insideSum = inside.reduce((t, c) => t + c.sum, 0), tries = [];
+      if (restOpen.length >= 2 && restOpen.length <= 4) tries.push({type: 'innies', plus: restOpen, minus: [], k: R.total - insideSum - sumOf(rest), cages: inside});
+      const outside = touching.flatMap(c => c.cells.filter(i => !inR.has(i))), outOpen = outside.filter(i => !g[i]);
+      if (outOpen.length >= 2 && outOpen.length <= 4) tries.push({type: 'outies', plus: outOpen, minus: [], k: touching.reduce((t, c) => t + c.sum, 0) - R.total - sumOf(outside), cages: touching});
+      for (const pc of partial) {           // innie–outie: the inside cages plus one cage that pokes out
+        const C = [...inside, pc], cov = new Set(C.flatMap(c => c.cells));
+        const inn = R.cells.filter(i => !cov.has(i)), outs = pc.cells.filter(i => !inR.has(i));
+        const innO = inn.filter(i => !g[i]), outO = outs.filter(i => !g[i]);
+        if (!innO.length || !outO.length || innO.length + outO.length > 3) continue;
+        tries.push({type: 'innieOutie', plus: innO, minus: outO, k: R.total - C.reduce((t, c) => t + c.sum, 0) - sumOf(inn) + sumOf(outs), cages: C, partial: pc});
+      }
+      for (const t of tries) {
+        const per = signedOptions(t.plus, t.minus, t.k, cand), cells = [...t.plus, ...t.minus];
+        const elim = cells.map((i, j) => [i, cand[i] & ~per[j]]).filter(([, m]) => m);
+        if (elim.length) add({...t, region: R, cells, per, sum: t.k, key: t.cages.flatMap(c => c.cells).filter(i => !cells.includes(i)), elim});
+      }
+    }
+  }
+  for (let b = 18; b < 27; b++) for (let d = 1; d <= 9; d++) {
+    const pos = posOf(b, d);
+    if (pos.length < 2) continue;
+    for (const [line, same] of [[ROW(pos[0]), pos.every(i => ROW(i) === ROW(pos[0]))], [9 + COL(pos[0]), pos.every(i => COL(i) === COL(pos[0]))]]) {
+      if (!same) continue;
+      const elim = posOf(line, d).filter(i => BOX(i) !== b - 18);
+      if (elim.length) add({type: 'pointing', box: b, line, d, key: pos, elim: elim.map(i => [i, 1 << d])});
+    }
+  }
+  for (let u = 0; u < 18; u++) for (let d = 1; d <= 9; d++) {
+    const pos = posOf(u, d);
+    if (pos.length < 2 || !pos.every(i => BOX(i) === BOX(pos[0]))) continue;
+    const inLine = new Set(UNITS[u]), box = 18 + BOX(pos[0]);
+    const elim = posOf(box, d).filter(i => !inLine.has(i));
+    if (elim.length) add({type: 'claiming', line: u, box, d, key: pos, elim: elim.map(i => [i, 1 << d])});
+  }
+  for (let u = 0; u < 27; u++) {
+    const two = empties(u).filter(i => bitsOf(cand[i]).length === 2);
+    for (let a = 0; a < two.length; a++) for (let b = a + 1; b < two.length; b++) {
+      if (cand[two[a]] !== cand[two[b]]) continue;
+      const m = cand[two[a]], elim = empties(u).filter(i => i !== two[a] && i !== two[b] && cand[i] & m);
+      if (elim.length) add({type: 'nakedPair', unit: u, ds: bitsOf(m), key: [two[a], two[b]], elim: elim.map(i => [i, m])});
+    }
+  }
+  for (let u = 0; u < 27; u++) for (let d1 = 1; d1 <= 9; d1++) {
+    const p1 = posOf(u, d1);
+    if (p1.length !== 2) continue;
+    for (let d2 = d1 + 1; d2 <= 9; d2++) {
+      const p2 = posOf(u, d2);
+      if (p2.length !== 2 || p2[0] !== p1[0] || p2[1] !== p1[1]) continue;
+      const m = (1 << d1) | (1 << d2), elim = p1.filter(i => cand[i] & ~m);
+      if (elim.length) add({type: 'hiddenPair', unit: u, ds: [d1, d2], key: p1, elim: elim.map(i => [i, cand[i] & ~m])});
+    }
+  }
+  for (const [base, cover, at] of [[0, 9, COL], [9, 0, ROW]]) for (let d = 1; d <= 9; d++) for (let a = base; a < base + 9; a++) {
+    const pa = posOf(a, d);
+    if (pa.length !== 2) continue;
+    for (let b = a + 1; b < base + 9; b++) {
+      const pb = posOf(b, d);
+      if (pb.length !== 2 || at(pa[0]) !== at(pb[0]) || at(pa[1]) !== at(pb[1])) continue;
+      const covers = [cover + at(pa[0]), cover + at(pa[1])], key = [...pa, ...pb], ks = new Set(key);
+      const elim = covers.flatMap(c => posOf(c, d)).filter(i => !ks.has(i));
+      if (elim.length) add({type: 'xwing', bases: [a, b], covers, d, key, elim: elim.map(i => [i, 1 << d])});
+    }
+  }
+  return out;
+}
+// Does deduction e (or single s) still hold with these pencil-marks? (cage/45-rule types; others use supportOf)
+function stillHolds(x, g, cand) {
+  switch (x.type) {
+    case 'combo': { const o = cageOptions(g, cand, x.cage); return x.removed.every(([i, m]) => !(o.per[o.open.indexOf(i)] & m)); }
+    case 'mustContain': case 'cageHidden': {
+      const o = cageOptions(g, cand, x.cage);
+      if (!o.ways.length) return true;
+      const d = x.type === 'cageHidden' ? x.digit : x.d;
+      if (!(o.ways.reduce((a, b) => a & b, ALL) & (1 << d))) return false;
+      const pos = o.open.filter((_, j) => o.per[j] & (1 << d));
+      return x.type === 'cageHidden' ? pos.length === 1 && pos[0] === x.cell : pos.every(i => UNITS[x.unit].includes(i));
+    }
+    case 'innies': case 'outies': case 'innieOutie': {
+      const per = signedOptions(x.plus, x.minus, x.k, cand);
+      return x.removed.every(([i, m]) => !(per[x.cells.indexOf(i)] & m));
+    }
+  }
+  return null;
+}
+const PRECISE = new Set(['combo', 'mustContain', 'cageHidden', 'innies', 'outies', 'innieOutie']);
+// Which earlier removals does x rely on? Restore each one and see if x breaks.
+function markSupport(x, g, before, c0, need) {
+  if (!PRECISE.has(x.type)) return supportOf(x, need);
+  const cells = x.cage ? x.cage.cells : x.cells;
+  for (const i of cells) for (const b of bitsOf(c0[i] & ~before[i])) {
+    const t = before.slice(); t[i] |= 1 << b;
+    if (!stillHolds(x, g, t)) need[i] |= 1 << b;
+  }
+}
+function planFor(s, layers, snaps, g, KK, broad) {
+  const L = layers.length, c0 = snaps[0], need = Array(81).fill(0);
+  if (s.type === 'naked') need[s.cell] = c0[s.cell] & ~(1 << s.digit);
+  else if (s.type === 'hidden') UNITS[s.unit].forEach(i => { if (i !== s.cell) need[i] |= c0[i] & (1 << s.digit); });
+  else if (s.type === 'cageHidden') {
+    if (broad) s.cage.cells.forEach(i => need[i] = ALL); else markSupport(s, g, snaps[L], c0, need);
+  }
+  const chosen = [];
+  for (let l = L; l >= 1; l--) {
+    const before = snaps[l - 1], after = snaps[l];
+    const pend = need.map((m, i) => m & before[i] & ~after[i]);
+    const picked = [];
+    while (pend.some(m => m)) {
+      let best = null, score = 0;
+      for (const e of layers[l - 1]) {
+        const cov = e.removed.reduce((t, [i, m]) => t + bitsOf(m & pend[i]).length, 0);
+        if (cov && cov / DIFF_W[e.type] > score) { score = cov / DIFF_W[e.type]; best = e; }
+      }
+      if (!best) return null;
+      picked.push(best);
+      for (const [i, m] of best.removed) pend[i] &= ~m;
+    }
+    for (const e of picked) {
+      e.layer = l;
+      chosen.unshift(e);
+      if (broad && PRECISE.has(e.type)) (e.cage ? e.cage.cells : e.cells).forEach(i => need[i] = ALL);
+      else markSupport(e, g, before, c0, need);
+    }
+  }
+  // Replay only the chosen steps to make sure they really lead to the answer
+  let cur = c0.slice();
+  for (let l = 1; l <= L; l++) {
+    const here = chosen.filter(e => e.layer === l);
+    for (const e of here) { const h = stillHolds(e, g, cur); if (h === false) return broad ? null : planFor(s, layers, snaps, g, KK, true); }
+    for (const e of here) for (const [i, m] of e.removed) cur[i] &= ~m;
+  }
+  const ok = s.type === 'naked' ? !(cur[s.cell] & ~(1 << s.digit))
+    : s.type === 'hidden' ? UNITS[s.unit].every(i => i === s.cell || g[i] || !(cur[i] & (1 << s.digit)))
+    : s.type === 'cageHidden' ? stillHolds(s, g, cur) : true;
+  if (!ok) return broad ? null : planFor(s, layers, snaps, g, KK, true);
+  const boxes = new Set([BOX(s.cell), ...chosen.flatMap(e => e.removed.map(([i]) => BOX(i)))]);
+  const cost = chosen.reduce((t, e) => t + DIFF_W[e.type], 0) + DIFF_W[s.type] + 0.35 * (boxes.size - 1);
+  return {single: s, chain: chosen, cost};
+}
+function easiestPlan(g, cand0, KK) {
+  const t0 = performance.now();
+  const S0 = allSingles(g, cand0, KK);
+  if (S0.length) return {single: S0.reduce((a, b) => (DIFF_W[b.type] < DIFF_W[a.type] ? b : a)), chain: [], cost: 0};
+  const layers = [], snaps = [cand0.slice()];
+  let cand = cand0.slice(), best = null, extra = 0;
+  for (let L = 1; L <= 10; L++) {
+    const E = allDeductions(g, cand, KK);
+    if (!E.length) break;
+    const next = cand.slice();
+    for (const e of E) for (const [i, m] of e.removed) next[i] &= ~m;
+    layers.push(E); snaps.push(next); cand = next;
+    for (const s of allSingles(g, cand, KK)) {
+      const plan = planFor(s, layers, snaps, g, KK, false);
+      if (plan && (!best || plan.cost < best.cost)) best = plan;
+    }
+    if (best && ++extra > 1) break;            // look one round further in case that's simpler, then stop
+    if (performance.now() - t0 > 2500) break;
+  }
+  return best;
+}
+
 function buildHint() {
   const wrong = [...Array(81).keys()].filter(i => grid[i] && grid[i] !== solution[i]);
   if (wrong.length) return {free: true, steps: [{msg: `Fix the red square${wrong.length > 1 ? 's' : ''} first. Hints work from correct numbers.`, key: wrong}]};
 
-  const g = grid.slice(), cand = computeCand(g);
-  let s = findSingle(g, cand);
-  if (s) return {answer: s, technique: s.type, steps: explainSingle(g, s)};
-
-  let first = null, n = 0;
-  while (n < 80) {
-    const e = findElim(g, cand);
-    if (!e) break;
-    for (const [i, m] of e.elim) cand[i] &= ~m;
-    first = first || e; n++;
-    s = findSingle(g, cand);
-    if (s) {
-      const more = n > 1 ? ' (after a few more steps like that one)' : '';
-      return {answer: s, technique: first.type, steps: [explainElim(first), {
-        msg: `That clears the way${more}: the outlined square has to be ${an(s.digit)}.`,
-        area: s.cage ? s.cage.cells : s.region ? s.region.cells : s.unit != null ? UNITS[s.unit] : PEERS[s.cell], target: s.cell}]};
+  const g = grid.slice(), cand0 = computeCand(g);
+  const plan = easiestPlan(g, cand0, K);
+  if (plan) {
+    const s = plan.single;
+    if (!plan.chain.length) return {answer: s, technique: s.type, steps: s.type === 'cageHidden' ? explainCageHidden(s) : explainSingle(g, s)};
+    const kept = [];
+    for (const e of plan.chain) {             // merge back-to-back "must contain" steps for the same cage and area
+      const last = kept[kept.length - 1];
+      if (last && e.type === 'mustContain' && last.type === 'mustContain' && last.cage === e.cage && last.unit === e.unit)
+        kept[kept.length - 1] = {...last, ds: [...(last.ds || [last.d]), e.d], key: [...new Set([...last.key, ...e.key])], elim: [...last.elim, ...e.elim]};
+      else kept.push(e);
     }
+    const N = kept.length + 1, tag = k => N > 2 ? `Step ${k} of ${N}: ` : '';
+    const steps = kept.map((e, k) => { const st = explainElim(e); return {...st, msg: tag(k + 1) + st.msg, target: s.cell}; });
+    if (N > 2) steps[0].msg = steps[0].msg.replace(/^Step 1 of \d+: /, m => m + 'Aim for the outlined square. ');
+    steps.push(finalStep(g, s, tag(N), N > 2, kept));
+    return {answer: s, technique: kept[0].type, steps};
   }
-  const open = [...Array(81).keys()].filter(i => !grid[i]);
-  const i = open[Math.random() * open.length | 0];
-  return {reveal: i, answer: {cell: i, digit: solution[i]}, technique: 'reveal',
-          steps: [{msg: `This spot needs some really advanced logic, so here's a free number to keep you going.`, target: i}]};
+  return buildForcingHint(grid.slice(), computeCand(grid), K);
+}
+
+// Mark what a deduction relied on: the candidates (or placed numbers) that had to be as they were for it to work
+function supportOf(e, need) {
+  const full = cells => cells.forEach(i => need[i] = ALL);
+  const dig = (cells, m) => cells.forEach(i => need[i] |= m);
+  switch (e.type) {
+    case 'pointing': dig(UNITS[e.box], 1 << e.d); break;
+    case 'claiming': dig(UNITS[e.line], 1 << e.d); break;
+    case 'xwing': e.bases.forEach(u => dig(UNITS[u], 1 << e.d)); break;
+    case 'nakedPair': full(e.key); break;
+    case 'hiddenPair': dig(UNITS[e.unit], (1 << e.ds[0]) | (1 << e.ds[1])); break;
+    case 'combo': case 'mustContain': full(e.cage.cells); break;
+    case 'innies': case 'outies': full(e.cells); full(e.cages.flatMap(c => c.cells)); break;
+    // singles (used in "what if" chains)
+    case 'naked': need[e.cell] = ALL; break;
+    case 'hidden': dig(UNITS[e.unit], 1 << e.digit); break;
+    case 'full': full(UNITS[e.unit]); break;
+    case 'cageLast': full(e.cage.cells); break;
+    case 'innie': case 'outie': full(e.region.cells); full(e.cages.flatMap(c => c.cells)); break;
+  }
+}
+// Work backwards from what a chain of moves achieves, keeping only the moves it really needed (and what those
+// needed in turn), so a multi-step hint shows every step that matters and nothing else.
+// entries: {kind:'elim', e (with .removed)} or {kind:'place', s}
+function pruneChain(entries, need) {
+  const keep = [];
+  for (let k = entries.length - 1; k >= 0; k--) {
+    const x = entries[k];
+    let used;
+    if (x.kind === 'elim') used = (x.e.removed || x.e.elim).some(([i, m]) => need[i] & m);
+    else used = !!need[x.s.cell] || PEERS[x.s.cell].some(p => need[p] & (1 << x.s.digit));
+    if (!used) continue;
+    keep.unshift(x);
+    supportOf(x.kind === 'elim' ? x.e : x.s, need);
+  }
+  return keep;
+}
+function neededSteps(chain, s, cand0) {
+  const need = Array(81).fill(0);
+  if (s.type !== 'naked' && s.type !== 'hidden') return chain.slice(-1);
+  supportOf(s, need);
+  need[s.cell] = s.type === 'naked' ? ALL & ~(1 << s.digit) : need[s.cell] & ~(1 << s.digit);
+  const keep = pruneChain(chain.map(e => ({kind: 'elim', e})), need).map(x => x.e);
+  return keep.length ? keep : chain.slice(-1);
+}
+// A few words on why a square is forced, for the end of a chain
+function explainCageHidden(s) {
+  const words = s.ways.map(w => bitsOf(w).join('+'));
+  const why = words.length <= 3 ? `every way to make ${s.sum} (${words.join(', ')}) uses ${an(s.digit)}` : `every way to make ${s.sum} uses ${an(s.digit)}`;
+  return [
+    {msg: s.sum === s.cage.sum ? `Look at the gold ${s.cage.sum} cage: ${why}. Where can it go?`
+        : `Look at the gold ${s.cage.sum} cage: its empty squares still need to make ${s.sum}, and ${why.replace(/^every way to make \d+/, 'every way to do that')}. Where can it go?`,
+     key: s.cage.cells, target: -1},
+    {msg: `Only the outlined square in the gold cage can take ${an(s.digit)}, so it must be ${an(s.digit)}.`, key: s.cage.cells, target: s.cell}];
+}
+// The last step of a chain: show exactly why the square is forced, not just that it is
+// "step 1 ruled out 1 and 3, and step 2 ruled out 4": which earlier step removed each thing
+function byStep(kept, items, test) {
+  const groups = new Map();
+  for (const it of items) {
+    const k = kept.findIndex(e => (e.removed || e.elim).some(([i, m]) => test(it, i, m)));
+    if (k < 0) return null;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(it);
+  }
+  return [...groups.entries()].sort((a, b) => a[0] - b[0]);
+}
+function finalStep(g, s, tag, many, kept = []) {
+  const d = s.digit, steps = many ? 'the steps above' : 'the step above';
+  if (s.type === 'hidden') {
+    const others = UNITS[s.unit].filter(i => i !== s.cell && !g[i]);
+    const gold = new Set(), red = [];
+    for (const i of others) {
+      const b = PEERS[i].find(p => g[p] === d);
+      if (b !== undefined) gold.add(b); else red.push(i);
+    }
+    const parts = [];
+    const who = many && red.length ? byStep(kept, red, (c, i, m) => i === c && m & (1 << d)) : null;
+    const stepNames = who ? (ks => ks.length === 1 ? `step ${ks[0]}` : `steps ${ks.slice(0, -1).join(', ')} and ${ks[ks.length - 1]}`)(who.map(([k]) => k + 1)) : steps;
+    if (red.length) parts.push(`${red.length === 1 ? 'the red square is' : 'the red squares are'} ruled out by ${stepNames}`);
+    if (gold.size) parts.push(`${red.length ? 'every other square' : 'every other empty square'} already sees ${an(d)} (gold) in its row, column or box`);
+    return {msg: `${tag}Now look for ${an(d)} in ${uName(s.unit)}: ${parts.join(', and ')}. That leaves only the outlined square, so it has to be ${an(d)}.`,
+            area: UNITS[s.unit], key: [...gold], elim: red, target: s.cell};
+  }
+  if (s.type === 'naked') {
+    const seen = new Set(PEERS[s.cell].filter(p => g[p]).map(p => g[p]));
+    const viaSteps = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(x => x !== d && !seen.has(x));
+    const gold = PEERS[s.cell].filter(p => g[p] && g[p] !== d);
+    const who = many ? byStep(kept, viaSteps, (x, i, m) => i === s.cell && m & (1 << x)) : null;
+    const andL = a => orList(a).replace(/ or (\d)$/, ' and $1');
+    const ruled = who ? (ps => ps.length > 1 ? ps.slice(0, -1).join(', ') + ', and ' + ps[ps.length - 1] : ps[0])(who.map(([k, xs]) => `step ${k + 1} ruled out ${andL(xs)}`))
+                      : `${steps} ruled out ${andL(viaSteps)}`;
+    const have = orList([...seen].sort((a, b) => a - b)).replace(' or ', ' and ');
+    const txt = !seen.size
+      ? ruled
+      : viaSteps.length
+      ? (who && who.length > 1 ? `its row, column and box (gold) already have ${have}. ${cap(ruled)}` : `its row, column and box (gold) already have ${have}, and ${ruled}`)
+      : `its row, column and box (gold) already have every other number`;
+    return {msg: `${tag}Now look at the outlined square: ${txt}. The only number left is ${d}.`, area: PEERS[s.cell], key: gold, target: s.cell};
+  }
+  return {msg: `${tag}${many ? 'Put together, that' : 'That'} clears the way: ${singleReason(s)} the outlined square has to be ${an(d)}.`,
+          area: s.cage ? s.cage.cells : s.region ? s.region.cells : s.unit != null ? UNITS[s.unit] : PEERS[s.cell], key: s.cage ? s.cage.cells : [], target: s.cell};
+}
+function singleReason(s) {
+  if (s.type === 'cageHidden') return `the gold ${s.cage.sum} cage needs ${an(s.digit)} and this is the only square in it that can hold one, so`;
+  if (s.type === 'naked') return 'it\'s the only number left for it, so';
+  if (s.type === 'hidden') return `it's the only place left for ${an(s.digit)} in ${uName(s.unit)}, so`;
+  return '';
+}
+
+/* ---------- "what if" hints: test a value, follow it, and show the contradiction ---------- */
+function placeIn(g, cand, i, d) {
+  g[i] = d; cand[i] = 0;
+  for (const p of PEERS[i]) cand[p] &= ~(1 << d);
+}
+function findContradiction(g, cand, KK) {
+  for (let i = 0; i < 81; i++) if (!g[i] && !cand[i]) return {type: 'empty', cells: [i]};
+  for (let u = 0; u < 27; u++) for (let d = 1; d <= 9; d++)
+    if (!UNITS[u].some(i => g[i] === d) && !UNITS[u].some(i => !g[i] && cand[i] & (1 << d))) return {type: 'unit', unit: u, d, cells: UNITS[u]};
+  if (KK) for (const cg of KK.cages) {
+    const open = cg.cells.filter(i => !g[i]);
+    if (!open.length) { if (cg.cells.reduce((t, i) => t + g[i], 0) !== cg.sum) return {type: 'cage', cage: cg, cells: cg.cells}; continue; }
+    if (!cageOptions(g, cand, cg).ways.length) return {type: 'cage', cage: cg, cells: cg.cells};
+  }
+  return null;
+}
+// Follow the easy steps (singles and eliminations) from a position until it breaks, gets stuck, or is solved
+function propagate(g, cand, KK, limit, log = null) {
+  for (let steps = 0; steps < limit; steps++) {
+    const c = findContradiction(g, cand, KK);
+    if (c) return {contra: c, steps};
+    const s = findSingle(g, cand, KK);
+    if (s) {
+      if (!(s.digit >= 1 && s.digit <= 9) || !(cand[s.cell] & (1 << s.digit)))
+        return {contra: {type: 'empty', cells: [s.cell]}, steps};
+      placeIn(g, cand, s.cell, s.digit);
+      if (log) log.push({kind: 'place', s});
+      if (g.every(v => v)) return {solved: true, steps};
+      continue;
+    }
+    const e = findElim(g, cand, KK);
+    if (!e) return {stuck: true, steps};
+    e.removed = e.elim.map(([i, m]) => [i, m & cand[i]]).filter(([, m]) => m);
+    for (const [i, m] of e.elim) cand[i] &= ~m;
+    if (log) log.push({kind: 'elim', e});
+  }
+  return {stuck: true, steps: limit};
+}
+// Test one assumption (a value in a square), follow it, and if it breaks keep only the moves that mattered
+function tryAssume(g, cand, KK, i, d, depth) {
+  const g2 = g.slice(), c2 = cand.slice();
+  placeIn(g2, c2, i, d);
+  const log = [], r = propagate(g2, c2, KK, depth, log);
+  if (!r.contra) return null;
+  const need = Array(81).fill(0), c = r.contra;
+  if (c.type === 'unit') c.cells.forEach(k => need[k] |= 1 << c.d); else c.cells.forEach(k => need[k] = ALL);
+  const used = pruneChain(log, need);
+  return {cell: i, d, contra: r.contra, log: used, steps: used.length};
+}
+// "What if": find a square whose other values all break, or a number whose other places in a row/column/box all break.
+// Quick pass first; if that finds nothing, a deeper, wider one (rare, early in hard Killer puzzles).
+function findForcing(g, cand, KK) {
+  const pop = m => bitsOf(m).length;
+  const passes = [{maxC: 3, depth: 45, budget: 700}, {maxC: 9, depth: 160, budget: 3500}];
+  for (const P of passes) {
+    const t0 = Date.now();
+    let best = null;
+    const consider = f => { if (!best || f.cost < best.cost) best = f; };
+    // 1. a square with a few possible values
+    const cells = [...Array(81).keys()].filter(i => !g[i] && pop(cand[i]) >= 2 && pop(cand[i]) <= P.maxC).sort((a, b) => pop(cand[a]) - pop(cand[b]));
+    // 2. a number with a few possible places in one row/column/box
+    const places = [];
+    for (let u = 0; u < 27; u++) for (let d = 1; d <= 9; d++) {
+      if (UNITS[u].some(i => g[i] === d)) continue;
+      const pos = UNITS[u].filter(i => !g[i] && cand[i] & (1 << d));
+      if (pos.length >= 2 && pos.length <= Math.min(P.maxC, 4)) places.push({u, d, pos});
+    }
+    places.sort((a, b) => a.pos.length - b.pos.length);
+    const jobs = [];
+    for (let k = 0; k < Math.max(cells.length, places.length); k++) {
+      if (k < cells.length) jobs.push({kind: 'cell', i: cells[k]});
+      if (k < places.length) jobs.push({kind: 'place', ...places[k]});
+    }
+    for (const job of jobs) {
+      if (Date.now() - t0 > P.budget) break;
+      const opts = job.kind === 'cell' ? bitsOf(cand[job.i]).map(d => [job.i, d]) : job.pos.map(i => [i, job.d]);
+      const bad = [];
+      let survivors = 0;
+      for (const [i, d] of opts) {
+        const r = tryAssume(g, cand, KK, i, d, P.depth);
+        if (r) bad.push(r); else if (++survivors > 1) break;      // two options survive: this test can't decide
+      }
+      if (bad.length !== opts.length - 1) continue;
+      const [ci, cd] = opts.find(([i, d]) => !bad.some(b => b.cell === i && b.d === d));
+      const cost = bad.reduce((t, b) => t + b.steps, 0);
+      consider({kind: job.kind, cell: ci, digit: cd, unit: job.u, d: job.d, options: job.kind === 'cell' ? bitsOf(cand[job.i]) : job.pos, bad, cost});
+      if (best.cost <= 6) break;
+    }
+    if (best) return best;
+  }
+  return null;
+}
+function contraText(c) {
+  if (c.type === 'empty') return `the red square would be left with no number that fits`;
+  if (c.type === 'unit') return `there would be nowhere left for ${an(c.d)} in ${uName(c.unit)}`;
+  return `the red cage could no longer add up to ${c.cage.sum}`;
+}
+const stepsText = n => n <= 1 ? 'straight away' : n <= 6 ? 'a few steps later' : `after a chain of ${n} steps`;
+// One line for each move in a "what if" chain
+function chainLine(x) {
+  if (x.kind === 'place') {
+    const s = x.s, why = s.type === 'naked' ? 'the only number left for it'
+      : s.type === 'hidden' ? `the only place left for ${an(s.digit)} in ${uName(s.unit)}`
+      : s.type === 'full' ? `the last gap in ${uName(s.unit)}`
+      : s.type === 'cageLast' ? `to make its cage add up to ${s.cage.sum}`
+      : 'by the 45 rule';
+    return {msg: `the outlined square would have to be ${an(s.digit)} (${why})`, area: s.cage ? s.cage.cells : s.region ? s.region.cells : s.unit != null ? UNITS[s.unit] : [], target: s.cell};
+  }
+  const st = explainElim(x.e);
+  return {...st, msg: st.msg.charAt(0).toLowerCase() + st.msg.slice(1)};
+}
+function buildForcingHint(g, cand, KK) {
+  const f = findForcing(g, cand, KK);
+  if (!f) {
+    // Honest last resort (we've never seen this in testing): don't pretend to explain it
+    const i = [...Array(81).keys()].filter(k => !g[k]).sort((a, b) => bitsOf(cand[a]).length - bitsOf(cand[b]).length)[0];
+    return {answer: {cell: i, digit: solution[i]}, technique: 'reveal', steps: [
+      {msg: `I couldn't find a clear chain of logic to show you here, so here's the number for the outlined square: ${an(solution[i])}.`, target: i}]};
+  }
+  const intro = f.kind === 'cell'
+    ? `advanced "what if". The outlined square can only be ${f.options.join(' or ')}. Let's test the wrong ${f.bad.length > 1 ? 'ones' : 'one'} and see ${f.bad.length > 1 ? 'them' : 'it'} break.`
+    : `advanced "what if". In ${uName(f.unit)}, ${an(f.d)} can only go in the ${f.options.length} gold squares. Let's test the wrong ${f.bad.length > 1 ? 'ones' : 'one'} and see ${f.bad.length > 1 ? 'them' : 'it'} break.`;
+  const total = f.bad.reduce((t, b) => t + b.log.length + 2, 0);
+  const label = (k, N) => `Step ${k} of ${N}: `;
+  const assume = b => f.kind === 'cell' ? `if it were ${an(b.d)}` : `if the ${b.d} went in the outlined square`;
+  if (total <= 24) {
+    const N = total + 2, steps = [];
+    let k = 1;
+    steps.push({msg: label(k++, N) + intro, area: f.kind === 'cell' ? PEERS[f.cell] : UNITS[f.unit], key: f.kind === 'cell' ? [] : f.options, target: f.kind === 'cell' ? f.cell : -1});
+    for (const b of f.bad) {
+      steps.push({msg: label(k++, N) + `Suppose ${f.kind === 'cell' ? `the outlined square is ${an(b.d)}` : `the ${b.d} goes in the outlined square`}.`, target: b.cell, area: f.kind === 'cell' ? PEERS[b.cell] : UNITS[f.unit]});
+      for (const x of b.log) {
+        const ln = chainLine(x);
+        steps.push({...ln, msg: label(k++, N) + `Then ${ln.msg}${/[.!]$/.test(ln.msg) ? '' : '.'}`, target: ln.target ?? b.cell});
+      }
+      steps.push({msg: label(k++, N) + `...and then ${contraText(b.contra)}. That's impossible, so ${f.kind === 'cell' ? `it isn't ${an(b.d)}` : `the ${b.d} can't go there`}.`,
+                  elim: b.contra.cells, area: b.contra.cells, target: b.cell});
+    }
+    steps.push({msg: label(k, N) + (f.kind === 'cell'
+      ? `Every other option breaks, so the outlined square must be ${an(f.digit)}.`
+      : `Every other spot breaks, so the ${f.digit} in ${uName(f.unit)} must go in the outlined square.`), target: f.cell, area: f.kind === 'cell' ? PEERS[f.cell] : UNITS[f.unit]});
+    return {answer: {cell: f.cell, digit: f.digit}, technique: 'forcing', steps};
+  }
+  // Long chains: summarise each branch, but still show its key point
+  const why = f.bad.map(b => `${assume(b)}, ${stepsText(b.steps)} ${contraText(b.contra)}`).join('; and ');
+  const worst = f.bad.reduce((a, b) => (b.steps > a.steps ? b : a));
+  return {answer: {cell: f.cell, digit: f.digit}, technique: 'forcing', steps: [
+    {msg: `Step 1 of 2: ${intro}`, area: f.kind === 'cell' ? PEERS[f.cell] : UNITS[f.unit], key: f.kind === 'cell' ? [] : f.options, target: f.kind === 'cell' ? f.cell : -1},
+    {msg: `Step 2 of 2: ${cap(why)}. That's impossible, so ${f.kind === 'cell' ? `the outlined square must be ${an(f.digit)}` : `the ${f.digit} must go in the outlined square`}.`,
+     elim: worst.contra.cells, area: worst.contra.cells, target: f.cell}]};
 }
 
 /* ---------- killer sudoku ---------- */
@@ -2129,9 +2753,17 @@ let hintsLeft = HINTS_PER_GAME, hintState = null, hintView = null;
 function hint() {
   if (done || paper()) return;
   if (hintState && hintState.step < hintState.steps.length - 1) { hintState.step++; return renderHint(); }
-  if (hintsLeft <= 0) return showHint({steps: [{msg: `No hints left this game. You've got this!`}]});
+  if (hintsLeft <= 0 && !unlimitedHints()) return showHint({steps: [{msg: `No hints left this game. You've got this!`}]});
+  if (hintBusy) return;
+  hintBusy = true;
+  notice('Thinking…');                           // hard positions can take a moment to work out
+  setTimeout(() => { hintBusy = false; finishHint(); }, 30);
+}
+let hintBusy = false;
+function finishHint() {
+  if (done) return;
   const h = buildHint();
-  if (!h.free) { hintsLeft--; hints++; }
+  if (!h.free) { if (!unlimitedHints()) hintsLeft--; hints++; }
   Sound.hint();
   if (h.reveal != null) {
     pushHistory();
@@ -2145,13 +2777,27 @@ function showHint(h) { hintState = {...h, step: 0}; selected = -1; renderHint();
 function renderHint() {
   const st = hintState.steps[hintState.step];
   hintView = {area: new Set(st.area || []), key: new Set(st.key || []), elim: new Set(st.elim || []), target: st.target ?? -1};
-  if (hintState.step > 0 && st.target >= 0) selected = st.target;
-  $('#hintText').textContent = st.msg;
+  if (hintState.step > 0 && st.target >= 0) selected = st.target; else if (hintState.step === 0) selected = -1;
+  $('#hintText').innerHTML = formatHint(st.msg);
   $('#hintNext').classList.toggle('hidden', hintState.step >= hintState.steps.length - 1);
+  $('#hintNext').textContent = hintState.step >= hintState.steps.length - 2 ? 'Show me' : 'Next step';
+  $('#hintSkip').classList.toggle('hidden', hintState.step >= hintState.steps.length - 2);
+  $('#hintBack').classList.toggle('hidden', hintState.step === 0);
   const box = $('#hintBox');
   box.classList.remove('hidden');
   replay(box, 'screen-in');
   render();
+}
+// Hint text: bold "Step 2 of 5:" and numbers; "gold" and "red" shown as chips in the board's highlight colours
+function formatHint(msg) {
+  const esc = msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const label = esc.match(/^Step \d+ of \d+: /);
+  const body = (label ? esc.slice(label[0].length) : esc)
+    .replace(/\((gold|red)\)/gi, (w, c) => `\u2060(${c})\u2060`)                      // keep brackets with the chip
+    .replace(/\b(gold|red)\b/gi, (w, c) => `<span class="hc hc-${c.toLowerCase()}">${w}</span>`)
+    .replace(/(\d+(?:[+−×]\d+)*)/g, '<b>$1</b>')
+    .replace(/\(<span class="hc ([^"]+)">([^<]+)<\/span>\)/g, '<span class="nowrap">(<span class="hc $1">$2</span>)</span>');
+  return (label ? `<b class="steplabel">${label[0].trim()}</b> ` : '') + body;
 }
 function clearHint() {
   hintState = null; hintView = null;
@@ -2301,6 +2947,7 @@ function showScreen(id) {
   replay($('#' + id), 'screen-in');
 }
 function showHome() {
+  if (updatePending) { updatePending = false; $('#winOverlay').classList.remove('show'); return applyUpdate(); }
   saveGame();
   clearInterval(timerId); clearTimeout(winTimer); clearTimeout(demoTimer);
   $('#winOverlay').classList.remove('show');
@@ -2322,7 +2969,7 @@ for (let i = 0; i < 81; i++) {
 
 // Killer: dashed cage outlines with the total in each cage's first square
 function drawCages(cellEls, KK) {
-  cellEls.forEach(el => el.querySelectorAll('.cage,.csum').forEach(x => x.remove()));
+  cellEls.forEach(el => { el.querySelectorAll('.cage,.csum').forEach(x => x.remove()); el.classList.remove('khead'); });
   if (!KK) return;
   cellEls.forEach((el, i) => {
     const k = KK.cageOf[i], r = ROW(i), c = COL(i);
@@ -2340,6 +2987,7 @@ function drawCages(cellEls, KK) {
       sum.className = 'csum';
       sum.textContent = KK.cages[k].sum;
       el.appendChild(sum);
+      el.classList.add('khead');
     }
   });
 }
@@ -2370,6 +3018,7 @@ function render() {
     else if (settings.hlPeers && peers.has(i)) cls += ' peer';
     if (hintView && hintView.target === i) cls += ' h-target';
     if (v && !given[i] && v !== solution[i] && !paper()) cls += ' bad';
+    if (el.querySelector('.csum')) cls += ' khead';
     el.className = cls;
     const ve = valEls[i];
     if (v) ve.textContent = v;
@@ -2392,8 +3041,8 @@ function render() {
     padBtns[d - 1].classList.toggle('full', placed === 9);
   }
   $('#mistakes').textContent = mistakes;
-  $('#hintCount').textContent = hintsLeft;
-  $('#hintBtn').classList.toggle('empty', hintsLeft === 0);
+  $('#hintCount').textContent = unlimitedHints() ? '∞' : hintsLeft;
+  $('#hintBtn').classList.toggle('empty', hintsLeft === 0 && !unlimitedHints());
   $('#notesBtn').classList.toggle('on', notesMode);
 }
 
@@ -2606,6 +3255,7 @@ function startPuzzle(p, st = null) {
   showScreen('game');
   startTimer(st ? st.seconds : 0); render();
   saveGame();
+  if (updatePending) { updatePending = false; setTimeout(applyUpdate, 0); }   // an update arrived while the win screen was up
 }
 
 /* ---------- how to play ---------- */
@@ -2720,6 +3370,7 @@ function renderMini(f) {
     const v = vals[i];
     if (v && !base[i] && v !== DEMO_S[i]) cls += ' bad';
     if (f.anim && f.anim[i]) cls += ' ' + f.anim[i];
+    if (el.querySelector('.csum')) cls += ' khead';
     el.className = cls;
     const n = f.notes && f.notes[i], ve = miniVals[i];
     if (v) ve.textContent = v;
@@ -2870,7 +3521,11 @@ swipeToClose($('#howPanel'), $('#howPanel'), () => closeHowTo());
 let paused = false;
 function renderSettings() {
   $('#themeNow').textContent = settings.theme === 'auto' ? 'Auto' : THEMES[settings.theme].name;
-  document.querySelectorAll('#settingsOverlay [data-set]').forEach(el => el.checked = !!settings[el.dataset.set]);
+  document.querySelectorAll('#settingsOverlay [data-set]').forEach(el => el.checked =
+    el.dataset.set === 'reduceMotion' ? motionOff() : el.dataset.set === 'bgMotion' ? fxOn() : !!settings[el.dataset.set]);
+  const follow = 'Following your phone\'s motion setting. Flip to choose for this app.';
+  $('#rmNote').textContent = settings.rmChosen ? 'Instant menus, moves and win screens' : follow;
+  $('#bgNote').textContent = 'Falling petals, fish, sleeping cats and other theme effects';
   $('#volume').value = settings.volume;
   $('#volume').disabled = !settings.sound;
 }
@@ -3019,6 +3674,19 @@ $('#themesPanel').addEventListener('click', e => {
   Sound.place(5);
   burst($(`.tcard[data-theme="${b.dataset.theme}"] .tmini`), 12, 60);
 });
+// Testing shortcut: tap the in-game title 7 times to switch unlimited hints on or off
+let gameTitleTaps = 0, gameTitleTimer = null;
+$('#diffLabel').addEventListener('click', () => {
+  gameTitleTaps++;
+  clearTimeout(gameTitleTimer);
+  gameTitleTimer = setTimeout(() => gameTitleTaps = 0, 1500);
+  if (gameTitleTaps < 7) return;
+  gameTitleTaps = 0;
+  const on = !unlimitedHints();
+  settings.devHints = on;
+  saveSettings(); render(); Sound.unit();
+  toast(`${icon('hint')}${on ? 'Unlimited hints on' : 'Unlimited hints off'}`);
+});
 // Testing shortcut: tap the Themes title 7 times to unlock (or re-lock) every theme
 let titleTaps = 0, titleTimer = null;
 $('#themesTitle').addEventListener('click', () => {
@@ -3028,23 +3696,30 @@ $('#themesTitle').addEventListener('click', () => {
   if (titleTaps < 7) return;
   titleTaps = 0;
   settings.devUnlock = !settings.devUnlock;
+  settings.devHints = settings.devUnlock;                // testing mode switches unlimited hints on and off with it
   saveSettings();
+  if (grid) render();
   if (!settings.devUnlock) applyTheme();   // falls back if the current theme is locked again
   renderThemes();
   Sound.unit();
 });
 document.querySelectorAll('#settingsOverlay [data-set]').forEach(el => el.addEventListener('change', () => {
-  settings[el.dataset.set] = el.checked; saveSettings(); applySettings();
+  settings[el.dataset.set] = el.checked;
+  if (el.dataset.set === 'reduceMotion') settings.rmChosen = true;
+  if (el.dataset.set === 'bgMotion') settings.bgChosen = true;
+  saveSettings(); applySettings();
   if (el.dataset.set === 'sound' && el.checked) Sound.place(5);
   renderSettings();
 }));
 $('#volume').addEventListener('input', e => { settings.volume = +e.target.value; saveSettings(); });
 $('#volume').addEventListener('change', () => Sound.place(5));
+if (systemReduce && systemReduce.addEventListener) systemReduce.addEventListener('change', () => applySettings());
 function applySettings() {
   $('#game').classList.toggle('notimer', !settings.showTimer);
-  const rm = !!settings.reduceMotion;
-  if (document.documentElement.classList.contains('rm') !== rm) {
-    document.documentElement.classList.toggle('rm', rm);
+  document.documentElement.classList.toggle('rm', motionOff());
+  const nofx = !fxOn();
+  if (document.documentElement.classList.contains('nofx') !== nofx) {
+    document.documentElement.classList.toggle('nofx', nofx);
     applyTheme();                                // rebuild (or drop) the moving theme decorations
   }
   if (grid) render();
@@ -3059,6 +3734,8 @@ $('#undoBtn').onclick = undo;
 $('#eraseBtn').onclick = erase;
 $('#hintBtn').onclick = hint;
 $('#hintNext').onclick = hint;
+$('#hintBack').onclick = () => { if (hintState && hintState.step > 0) { hintState.step--; renderHint(); } };
+$('#hintSkip').onclick = () => { if (hintState) { hintState.step = hintState.steps.length - 1; renderHint(); } };
 $('#hintClose').onclick = () => { clearHint(); render(); };
 $('#notesBtn').onclick = () => { notesMode = !notesMode; render(); };
 
@@ -3091,8 +3768,44 @@ document.addEventListener('keydown', e => {
 if (!MODES.some(m => m.id === modeId)) modeId = 'classic';
 renderHome();
 scrollToMode(MODES.findIndex(m => m.id === modeId), false);
+/* ---------- updates: the app picks up a new commit by itself ----------
+   sw.js always fetches the newest index.html when there's internet (the saved copy is only for offline).
+   If the app was just sitting in the background when you committed, coming back to it checks for a
+   newer version; if there is one, the game saves and reloads straight back to where you were. */
+const UPDATE_KEY = 'sudoku-just-updated';
+var updatePending = false;   // var: other functions may look at it before this line runs
+function applyUpdate() {
+  if ($('#winOverlay').classList.contains('show')) { updatePending = true; return; }   // don't cut off a win
+  saveGame();
+  const inGame = !$('#game').classList.contains('hidden') && currentPuzzle && !done;
+  try { sessionStorage.setItem(UPDATE_KEY, JSON.stringify({mode: inGame ? currentPuzzle.mode : null})); } catch {}
+  location.reload();
+}
+// Just reloaded for an update: put the player straight back in their game
+(() => {
+  let info = null;
+  try { info = JSON.parse(sessionStorage.getItem(UPDATE_KEY)); sessionStorage.removeItem(UPDATE_KEY); } catch {}
+  if (!info) return;
+  if (info.mode && loadSaves()[info.mode]) resumeGame(info.mode);
+  setTimeout(() => toast('Updated to the newest version'), 400);
+})();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  const sw = navigator.serviceWorker;
+  const hadController = !!sw.controller;
+  let reloading = false;
+  const onUpdate = () => { if (!reloading) { reloading = true; applyUpdate(); if (updatePending) reloading = false; } };
+  // a brand-new sw.js took over (e.g. the first time after you replace an old one)
+  sw.addEventListener('controllerchange', () => { if (hadController) onUpdate(); });
+  // sw.js found a newer index.html than the one that's running
+  sw.addEventListener('message', e => { if (e.data && e.data.type === 'updated') onUpdate(); });
+  window.addEventListener('load', () => sw.register('sw.js', {updateViaCache: 'none'}).catch(() => {}));
+  const checkForUpdate = () => sw.ready.then(reg => {
+    reg.update().catch(() => {});
+    if (sw.controller) sw.controller.postMessage({type: 'check'});
+  }).catch(() => {});
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
+  addEventListener('online', checkForUpdate);
+  setInterval(() => { if (!document.hidden) checkForUpdate(); }, 30 * 60 * 1000);   // left open for ages
 }
 </script>
 </body>
